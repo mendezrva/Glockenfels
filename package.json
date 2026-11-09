@@ -12,6 +12,7 @@
     "online": "npm run build && npm start",
     "start": "npm start -w apps/server",
     "typecheck": "npm run typecheck --workspaces",
-    "test": "npm run test -w packages/engine && npm run test -w apps/server"
+    "test": "npm run test -w packages/engine && npm run test -w apps/server && npm run test -w packages/kingdoms",
+    "sim": "npm run sim -w packages/kingdoms --"
   }
 }
