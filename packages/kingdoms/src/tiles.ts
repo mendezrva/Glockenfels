@@ -67,8 +67,8 @@ export interface DuchyDef {
 /** Seat order on the board: north, east, south, west. */
 export const DUCHIES: DuchyDef[] = [
   {
-    id: 'salz', name: 'Salz', theme: 'Urban density', colour: '#e8e2d0',
-    power: 'Salzregal: swaps into Salz pay double Zoll, all of it to Salz.',
+    id: 'salz', name: 'Salz', theme: 'Urban density', colour: '#2f74c0',
+    power: 'Salzregal: collects double Zoll on every swap into Salz; the swapper pays only the normal Zoll.',
     home: [
       { tileId: 'burg-square', count: 2 }, { tileId: 'burg-square-banner', count: 1 },
       { tileId: 'burg-gate', count: 1 }, { tileId: 'burg-corner', count: 1 },
@@ -83,7 +83,7 @@ export const DUCHIES: DuchyDef[] = [
     ],
   },
   {
-    id: 'wein', name: 'Wein', theme: 'Monks and contemplation', colour: '#8e3b5e',
+    id: 'wein', name: 'Wein', theme: 'Monks and contemplation', colour: '#d9482b',
     power: 'Besinnung: sees the top two tiles of its home deck and may take either.',
     home: [
       { tileId: 'stift', count: 1 }, { tileId: 'stift-lane', count: 2 },
@@ -98,7 +98,7 @@ export const DUCHIES: DuchyDef[] = [
     ],
   },
   {
-    id: 'forst', name: 'Forst', theme: 'Traveller variety', colour: '#3f7a3a',
+    id: 'forst', name: 'Forst', theme: 'Traveller variety', colour: '#2e9b6b',
     power: 'Waldläufer: may swap twice per turn.',
     home: [
       { tileId: 'road', count: 3 }, { tileId: 'road-badge', count: 2 },
@@ -113,7 +113,7 @@ export const DUCHIES: DuchyDef[] = [
     ],
   },
   {
-    id: 'hopfen', name: 'Hopfen', theme: 'Rural peace and freedom', colour: '#c9a227',
+    id: 'hopfen', name: 'Hopfen', theme: 'Rural peace and freedom', colour: '#f2b630',
     power: 'Landfrieden: pays no Zoll.',
     home: [
       { tileId: 'burg-edge', count: 4 }, { tileId: 'burg-edge-road', count: 3 },

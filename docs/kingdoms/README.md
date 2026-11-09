@@ -13,3 +13,17 @@ npm run test -w packages/kingdoms     # rules tests
 npm run sim -- 400                     # balance report, 400 games per experiment
 npm run sim -- 200 --json zoll=2       # try a setting
 ```
+
+## 3D client
+
+`apps/kingdoms` is the Tiny Kingdoms client. It reuses the Glockenfels tile builder, scene, Wanderers and interface styles from `apps/client` through a `@gf` import alias, without changing them.
+
+```
+npm run dev:kingdoms      # local dev server
+npm run build:kingdoms    # static build in apps/kingdoms/dist
+```
+
+- **Setup screen:** name each duchy's ruler and choose Person or Bot. Bots are the simulator's balanced bot.
+- **Turn dock:** take from a pile (home deck, reserve or a reachable Markt pile), optionally swap for another duchy's top tile (the Zoll is shown), tap a glowing spot, turn the tile, pick a Wanderer spot, then place.
+- **On the board:** each tile carries a band in its duchy's colour (its field style; Markt tiles are gold). The ground under empty cells is tinted by duchy, the Markt is gold, and your open gap pulses.
+- **Pass and play:** a hand-off screen appears between people. The game saves itself, and the menu has undo.

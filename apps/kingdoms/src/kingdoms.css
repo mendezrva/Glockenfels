@@ -1,0 +1,49 @@
+/* Tiny Kingdoms additions on top of the Glockenfels game styles. */
+.k-setup { min-height: 100%; overflow-y: auto; display: grid; place-items: center; padding: calc(16px + env(safe-area-inset-top, 0px)) 16px 24px; background: linear-gradient(180deg, #dde9f3, #cfe0c6); }
+.k-setup-card { width: min(720px, 100%); background: var(--paper); border-radius: 24px; border: 1px solid var(--line); box-shadow: 0 5px 0 var(--soil), 0 20px 50px rgba(40, 32, 20, 0.22); padding: 0 20px 20px; display: grid; gap: 14px; overflow: hidden; }
+.k-setup-card .rauten { margin: 0 -20px; }
+.k-setup-card h1 { margin: 6px 0 0; font-size: 34px; color: var(--deep); }
+.k-sub { margin: -6px 0 0; color: var(--muted); }
+.k-duchies { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 10px; }
+.k-duchy { min-width: 0; border: 1px solid var(--line); border-top: 5px solid var(--pc); border-radius: 16px; padding: 10px 12px; display: grid; gap: 6px; background: #fffdf7; box-shadow: var(--slab-sm); }
+.k-duchy-head { display: flex; align-items: baseline; gap: 8px; }
+.k-duchy-head b { font: 800 19px var(--font-display); }
+.k-duchy-head em { font-style: normal; color: var(--muted); font-size: 13px; }
+.k-duchy p { margin: 0; font-size: 13px; color: var(--muted); }
+.k-duchy-row { display: flex; gap: 8px; align-items: center; }
+.k-duchy-row input { flex: 1; min-width: 0; font: 700 15px var(--font); padding: 0 10px; min-height: 42px; border-radius: 12px; border: 1px solid var(--line); background: #fff; }
+.k-duchy .seg { background: #eef2f0; flex: none; }
+
+.k-dock { display: grid; gap: 8px; }
+.k-row { display: flex; align-items: center; gap: 10px; overflow-x: auto; scrollbar-width: none; }
+.k-row::-webkit-scrollbar { display: none; }
+.k-label { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); flex: none; width: 74px; }
+.k-piles { align-items: flex-end; }
+.k-pile { display: grid; justify-items: center; gap: 3px; flex: none; }
+.k-pile small { font-size: 11px; font-weight: 700; color: var(--muted); white-space: nowrap; display: flex; align-items: center; gap: 4px; }
+.k-pile small .dot { width: 8px; height: 8px; }
+.k-pile.off { opacity: 0.4; }
+.k-tag { font: 800 11px var(--font); text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 7px; border-radius: 8px; background: var(--pc); color: #fff; }
+.k-tag.markt { background: var(--gold); color: var(--ink); }
+.k-status {
+  position: absolute; left: max(14px, env(safe-area-inset-left, 0px)); top: calc(92px + env(safe-area-inset-top, 0px)); max-width: min(330px, calc(100% - 28px));
+  background: var(--glass); border-radius: 12px; border-left: 5px solid var(--pc); padding: 8px 11px; display: grid; gap: 2px; font-size: 12.5px;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); pointer-events: none;
+}
+.k-status b { font-size: 14px; }
+.k-status span { color: var(--muted); }
+.k-split { color: var(--muted); font-size: 11px; margin-left: auto; margin-right: 8px; }
+.results li em { font-style: normal; color: var(--muted); font-size: 12px; }
+@media (max-width: 560px) {
+  .k-setup { padding-left: 10px; padding-right: 10px; }
+  .k-setup-card { padding: 0 14px 16px; }
+  .k-setup-card .rauten { margin: 0 -14px; }
+  .k-duchy .seg button { padding: 0 8px; font-size: 14px; }
+  .k-status { top: calc(76px + env(safe-area-inset-top, 0px)); font-size: 11.5px; padding: 6px 9px; }
+  .k-status .k-power { display: none; }
+  .k-label { display: none; }
+  .k-split { display: none; }
+  .k-dock .hint.small { display: none; }
+  .k-dock .claim-opts { width: 100%; }
+  .k-round-word { display: none; }
+}
