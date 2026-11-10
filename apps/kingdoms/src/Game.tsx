@@ -411,7 +411,7 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
                 <span className="pieces"><i style={{ background: duchyCss(i) }} />{pl.wanderers}</span>
                 <span title={s.gapClosed[i] ? 'Gap closed' : 'Gap open'}>{s.gapClosed[i] ? '⛓ open' : '◌ gap'}</span>
                 <span title="Home tiles left">▦{s.decks[i].length}</span>
-                <span className="k-seals" title="Side quests earned">{pl.quests.map((d, k) => <i key={k} className={d ? 'on' : ''}>{s.cfg.questPoints[k]}</i>)}</span>
+                <span className="k-seals" title="Side quests earned">{pl.quests.map((d, k) => <i key={k} className={`t${k}${d ? ' on' : ''}`}><span>{s.cfg.questPoints[k]}</span></i>)}</span>
               </span>
             </div>
           ))}
@@ -524,7 +524,7 @@ function QuestCard({ onClose, s, me, nameOf }: { onClose: () => void; s: KState;
               <ul className="k-quests">
                 {d.quests.map((qd, k) => (
                   <li key={qd.id} className={s.players[i].quests[k] ? 'done' : ''}>
-                    <b>{qd.title}</b> <span>{qd.text}</span> <em className={`k-seal${s.players[i].quests[k] ? ' on' : ''}`}>{s.cfg.questPoints[k]}</em>
+                    <b>{qd.title}</b> <span>{qd.text}</span> <em className={`k-seal t${k}${s.players[i].quests[k] ? ' on' : ''}`}><span>{s.cfg.questPoints[k]}</span></em>
                   </li>
                 ))}
               </ul>

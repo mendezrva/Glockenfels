@@ -107,15 +107,18 @@
 .k-quests li b { font: 800 13px var(--font-display); color: var(--pc, inherit); }
 .k-quests li span { color: var(--muted); }
 .k-quests li.done span { color: #2e9b6b; }
-/* The point seal: a gold hexagon with the card's points, the same mark on the card, the panel and the scoreboard. */
-.k-seal, .k-seals i { display: inline-grid; place-items: center; width: 26px; height: 30px; font: 800 13px/1 var(--font-display); font-style: normal; color: #3a2a10;
-  background: linear-gradient(160deg, #ffe9a3, #e4b94a 45%, #b9842a); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
-.k-quests li em.k-seal:not(.on) { background: #e6e1d6; color: #8a847a; }
+/* The point seal: a hexagon with the card's points in its tier metal (4 ice blue, 7 silver, 10 gold), the same mark on the card, the panel and the scoreboard. */
+.k-seal, .k-seals i { --m: #1a9fd4; --m-hi: #bdeaff; --m-dk: #0e6b93; display: inline-grid; place-items: center; width: 26px; height: 30px; font: 800 13px/1 var(--font-display); font-style: normal; color: var(--m-dk);
+  background: linear-gradient(160deg, var(--m-hi), var(--m) 45%, var(--m-dk)); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); position: relative; }
+.k-seal::before, .k-seals i.on::before { content: ""; position: absolute; inset: 3px; background: #fff8e3; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); z-index: 0; }
+.k-seal, .k-seals i { isolation: isolate; } .k-seal > *, .k-seals i > * { position: relative; }
+.k-seal.t1, .k-seals i.t1 { --m: #c3c9d2; --m-hi: #f3f5f8; --m-dk: #7f8894; color: #3b434e; }
+.k-seal.t2, .k-seals i.t2 { --m: #c9931f; --m-hi: #f8e39a; --m-dk: #8a6210; }
+.k-quests li em.k-seal:not(.on) { background: #e6e1d6; color: #8a847a; } .k-quests li em.k-seal:not(.on)::before { background: #f3efe6; }
 .k-questline { border-top: 1px solid var(--line); padding-top: 8px; margin-top: 8px; }
 .k-questline h3 { margin: 0 0 6px; font: 800 16px var(--font-display); display: flex; gap: 6px; align-items: center; }
 .k-questline h3 em { font-style: normal; color: var(--muted); font-size: 13px; font-weight: 600; }
 .k-questline .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--pc); display: inline-block; }
 .k-questcard { max-height: 86vh; overflow-y: auto; }
 .k-seals { display: inline-flex; gap: 2px; align-items: center; }
-.k-seals i { width: 15px; height: 17px; font-size: 8px; background: none; border: 1.5px solid #d9d2c3; color: transparent; clip-path: none; border-radius: 4px; }
-.k-seals i.on { background: linear-gradient(160deg, #ffe9a3, #e4b94a 45%, #b9842a); color: #3a2a10; border: 0; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+.k-seals i { width: 16px; height: 18px; font-size: 8.5px; } .k-seals i:not(.on) { background: #e6e1d6; color: transparent; }
