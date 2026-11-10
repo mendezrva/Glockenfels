@@ -74,7 +74,7 @@ export default function App() {
                   <em>{d.theme}</em>
                 </div>
                 <p>{d.story}</p>
-                <ul className="k-quests">{d.quests.map((qd, k) => <li key={qd.id}><b>{qd.title}</b> <span>{qd.text}</span> <em>{[4, 7, 10][k]}</em></li>)}</ul>
+                <ul className="k-quests">{d.quests.map((qd, k) => <li key={qd.id}><b>{qd.title}</b> <span>{qd.text}</span> <em className="k-seal">{[4, 7, 10][k]}</em></li>)}</ul>
                 <div className="k-duchy-row">
                   <input aria-label={`${d.name} ruler name`} value={seat.name} maxLength={18} onChange={(e) => set(i, { name: e.target.value })} />
                   <div className="seg">
