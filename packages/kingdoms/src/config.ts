@@ -72,8 +72,8 @@ export interface KOptions extends Partial<Omit<KConfig, 'scoring' | 'powers' | '
 
 export const DEFAULT_CONFIG: KConfig = {
   wanderers: 7,
-  rounds: 17,
-  gap: 2,
+  rounds: 19,
+  gap: 3,
   marktRadius: 1,
   vorlandDepth: 3,
   pairSpread: 1,

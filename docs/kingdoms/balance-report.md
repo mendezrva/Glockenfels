@@ -1,4 +1,4 @@
-# Heimfall balance report (v0.4)
+# Heimfall balance report (v0.5)
 
 Run it yourself: `npm run sim -w packages/kingdoms -- 400` (add `--json`, or override any setting, for example `scoring.stiftComplete=9` or `deck.wein.home.stift=3`). Raw numbers for this report are in `balance-v0.2.json` (v0.1 numbers are in `balance-v0.1.json`).
 
@@ -20,6 +20,18 @@ What this shows:
 - **Duchy powers scale with the table.** Salz's Zoll needs many swappers, so Salz is weak at small tables; Forst's double swap is strongest with few rivals. Erz and Tuch were tuned at six and are a little strong at four.
 - **Wide tables link less.** With six, everyone links in 46% of games (four players: 66 to 74%). A 7 × 3 Markt was worse (24%), so the default wide Markt is 5 × 3.
 - Next tuning steps: a 5-player seat layout for the south seat, and per-table-size power values (for example Salz's Zoll factor) if the small-table numbers matter.
+
+## Three-space gap (v0.5)
+
+Mark chose the three-space gap. About 3,500 more bot games.
+
+- Gap 3 alone at 17 rounds put Salz at 34% and the rest near 21%. Extra rounds (18, 19, 20) did not fix that but restored scores. 19 rounds brings the average score back to 48.
+- Salz: one Stift became a road. Hopfen: one Burg wall became a road bend.
+- Adopted set, 400 games, 4 players: duchies 26.2 / 22.6 / 24.2 / 27.1%. Contested 50.6%, 7.6 points struck off per player. Gap closes round 5.3, first pact round 8.7, everyone linked in 85% of games. Balanced 36.8%, reacher 23%, cultivator 3.4% per seat.
+- Other tables (before the Hopfen change, 100 to 120 games): 2 players first pact round 10 and 77% link; 3 players 32 to 36% each; 5 players 16 to 23% by duchy; 6 players 9.5 to 23.5% by duchy, so six needs its own pass.
+- With 19 rounds and 17 home tiles, the last two turns need a Markt or reserve tile.
+
+Raw output: `balance-v0.5.json`.
 
 ## Contested land and harder alliances (v0.4)
 

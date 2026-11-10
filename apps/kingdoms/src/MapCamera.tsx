@@ -101,7 +101,12 @@ export function MapCamera({ tilt, recenter, bounds, home, heading, focus, keepVi
     };
   }, [gl]);
 
-  const boardDistance = () => Math.max(minDistance, bounds.extent * 2.3) * Math.max(1, 0.95 / aspect);
+  const boardDistance = () => Math.max(minDistance, bounds.extent * 2.7) * Math.max(1, 0.95 / aspect);
+  /** Board centre nudged toward the viewer, so the near seat clears the dock at the bottom of the screen. */
+  const boardTarget = (az: number): [number, number, number] => {
+    const k = bounds.extent * 0.75 * Math.sin(polar);
+    return [bounds.cx + Math.sin(az) * k, 0, bounds.cz + Math.cos(az) * k];
+  };
 
   // The viewing angle from settings: lock the polar angle there.
   useEffect(() => {
@@ -120,14 +125,14 @@ export function MapCamera({ tilt, recenter, bounds, home, heading, focus, keepVi
     const animate = !first.current;
     if (first.current) {
       first.current = false;
-      c.setTarget(bounds.cx, 0, bounds.cz, false);
+      c.setTarget(...boardTarget(heading), false);
       c.rotateTo(heading, polar, false);
       c.dollyTo(boardDistance(), false);
       return;
     }
     if (recenter.mode === 'north') { c.rotateAzimuthTo(0, true); return; }
     if (recenter.mode === 'board') {
-      c.setTarget(bounds.cx, 0, bounds.cz, animate);
+      c.setTarget(...boardTarget(c.azimuthAngle), animate);
       c.dollyTo(boardDistance(), animate);
     } else {
       c.setTarget(home.x, 0, home.z, animate);

@@ -1,4 +1,4 @@
-# Heimfall, rules spec (v0.4)
+# Heimfall, rules spec (v0.5)
 
 Heimfall is a fork of Glockenfels. It keeps square tiles, edge matching and Wanderers, and adds four rival duchies of a fractured Bavaria around a central Markt. It lives on the `kingdoms` branch and never merges into `main`; the original game is untouched.
 
@@ -47,7 +47,8 @@ North is up. The Marktburg, a four-sided Burg with a banner, sits at the centre 
 
 ```
               Stammburg (Salz)
-                  .   gap: 2 empty cells
+                  .   gap: 3 empty cells
+                  .
                   .
                V  V  V      Vorland ring 3 (crossbar)
                   V         Vorland ring 2
@@ -62,7 +63,7 @@ North is up. The Marktburg, a four-sided Burg with a banner, sits at the centre 
 ```
 
 - **Vorland:** the three rings just outside the Markt. Each duchy's Vorland is a preplaced T of five tiles, shaped 1-1-3: one tile facing the Markt, one behind it, and a crossbar of three facing home.
-- **Stammland:** everything further out. The Stammburg sits 2 empty cells beyond the middle of the crossbar (the **gap**).
+- **Stammland:** everything further out. The Stammburg sits 3 empty cells beyond the middle of the crossbar (the **gap**).
 - The Markt holds only Markt tiles. Stammland never holds Markt tiles.
 
 ## Table sizes
@@ -72,7 +73,7 @@ Two to six duchies can play. What has to stay true at every size:
 - **Every duchy gets the same shape of land:** the same Vorland T, the same two-cell gap and the same distance from its Stammburg to the Markt along its own spine. Only which side of the Markt it faces changes.
 - **Every Vorland touches the Markt,** so every duchy can link to every other through it.
 - **Land is split fairly:** each cell belongs to the duchy whose spine (the line from the Markt out to its Stammburg) is nearest. Cells exactly between two spines go to the duchy they lie clockwise of.
-- **Rounds do not depend on the table:** a duchy always has 17 home tiles after setup, so the game is 17 rounds at any size. Bigger tables simply take longer.
+- **Rounds do not depend on the table:** a duchy always has 17 home tiles after setup and the game is 19 rounds at any size. Bigger tables simply take longer.
 
 | Duchies | Markt | Seats |
 | --- | --- | --- |
@@ -98,15 +99,15 @@ Each duchy has a **home deck of 22 tiles** (same size, different mix) and a **Ma
 | Burg corner | Burg, field, field, Burg | 1 | 2 | 1 | 2 |
 | Burg corner with road | Burg, road, road, Burg | 1 | 0 | 1 | 0 |
 | Burg street | field, Burg, field, Burg | 1 | 1 | 0 | 1 |
-| Burg wall | Burg, field, field, field | 4 | 2 | 2 | 4 |
+| Burg wall | Burg, field, field, field | 4 | 2 | 2 | 3 |
 | Burg wall with road | Burg, road, field, road | 3 | 2 | 2 | 3 |
 | Burg wall with bend | Burg, field, road, road | 0 | 0 | 2 | 2 |
-| Road | road, field, road, field | 3 | 4 | 1 | 3 |
+| Road | road, field, road, field | 4 | 4 | 1 | 3 |
 | Waymarked road | road, field, road, field · badge | 0 | 0 | 4 | 0 |
-| Road bend | field, field, road, road | 2 | 5 | 2 | 2 |
+| Road bend | field, field, road, road | 2 | 5 | 2 | 3 |
 | Waymarked bend | field, field, road, road · badge | 0 | 0 | 3 | 0 |
 | Junction | field, road, road, road · shrine | 1 | 1 | 0 | 1 |
-| Stift | field ×4 · Stift | 2 | 1 | 2 | 1 |
+| Stift | field ×4 · Stift | 1 | 1 | 2 | 1 |
 | Stift with lane | field, field, road, field · Stift | 0 | 1 | 1 | 0 |
 | Open field | field ×4 | 0 | 1 | 0 | 2 |
 | **Total** | | **22** | **22** | **22** | **22** |
@@ -139,7 +140,7 @@ Each duchy has a **home deck of 22 tiles** (same size, different mix) and a **Ma
    - on the gap-side slot, prefer a road pointing home,
    - if the tile fits nowhere, it goes to a **one-tile reserve slot** and the next tile is drawn; the reserve tile is tried first at the next slot; if the reserve is already full, the tile goes to the bottom of the deck.
    - At the end of setup any reserve tile goes to the bottom of the deck. Nothing scores during setup.
-5. Each duchy now has 17 home tiles left. The game lasts **17 rounds**.
+5. Each duchy now has 17 home tiles left. The game lasts **19 rounds**, two more than the home deck. The last two turns need a Markt tile or a reserve tile, otherwise you pass.
 
 ## A turn
 
@@ -179,7 +180,7 @@ Each duchy has a **home deck of 22 tiles** (same size, different mix) and a **Ma
 
 Majority rules as in Glockenfels: most Wanderers on a feature scores it; ties all score in full.
 
-**Game end:** after 17 rounds, score unfinished features and fields. Highest score wins; ties share the win. Home tiles you never drew score nothing, so a Markt tile always costs you a home tile.
+**Game end:** after 19 rounds, score unfinished features and fields. Highest score wins; ties share the win. Home tiles you never drew score nothing, so a Markt tile always costs you a home tile.
 
 ## The award and the price of company (v0.4)
 
@@ -190,7 +191,7 @@ These rules push points toward contested land and make the Markt and its pacts c
 - **Pact fee** (`pactFee: 3`). Whoever lays the tile that links two lines pays 3 points for each new pact. Nobody receives it.
 - **Markt fee** (`marktFee: 1`). Drawing from another line's Markt pile costs 1 Zoll, paid to that line. You cannot draw if you cannot pay.
 - **Vorland toll** (`vorlandToll`, off). Building on another line's Vorland pays that line. Off because it hands Hopfen, who pays no Zoll, 39% of wins.
-- **A longer gap** (`gap: 3`, not adopted). Moves gap closing from round 3.7 to 5.4 and the first link from round 7 to 9. It is the strongest way to make the Markt harder to reach but it breaks the two-space rule Mark set, so it waits on his call.
+- **A longer gap** (`gap: 3`, adopted in v0.5 on Mark's call). Three empty cells between the Stammburg and the Vorland. The gap closes around round 5.3 instead of 3.7 and the first pact lands around round 8.7 instead of 7. The game runs 19 rounds to make up the lost time. Salz gave up a Stift for a road and Hopfen a Burg wall for a road bend to keep the duchies even.
 
 ## Changes from the brainstorm, and why
 

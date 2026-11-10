@@ -74,8 +74,8 @@ export const DUCHIES: DuchyDef[] = [
       { tileId: 'burg-gate', count: 1 }, { tileId: 'burg-corner', count: 1 },
       { tileId: 'burg-corner-road', count: 1 }, { tileId: 'burg-street', count: 1 },
       { tileId: 'burg-edge', count: 4 }, { tileId: 'burg-edge-road', count: 3 },
-      { tileId: 'road', count: 3 }, { tileId: 'road-bend', count: 2 },
-      { tileId: 'junction', count: 1 }, { tileId: 'stift', count: 2 },
+      { tileId: 'road', count: 4 }, { tileId: 'road-bend', count: 2 },
+      { tileId: 'junction', count: 1 }, { tileId: 'stift', count: 1 },
     ],
     markt: [
       { tileId: 'burg-cap-banner', count: 2 }, { tileId: 'burg-corner-banner', count: 2 },
@@ -116,10 +116,10 @@ export const DUCHIES: DuchyDef[] = [
     id: 'hopfen', name: 'Hopfen', theme: 'Rural peace and freedom', colour: '#f2b630',
     power: 'Landfrieden: pays no Zoll.',
     home: [
-      { tileId: 'burg-edge', count: 4 }, { tileId: 'burg-edge-road', count: 3 },
+      { tileId: 'burg-edge', count: 3 }, { tileId: 'burg-edge-road', count: 3 },
       { tileId: 'burg-edge-bend', count: 2 }, { tileId: 'burg-corner', count: 2 },
       { tileId: 'burg-street', count: 1 }, { tileId: 'burg-square', count: 1 },
-      { tileId: 'field', count: 2 }, { tileId: 'road', count: 3 }, { tileId: 'road-bend', count: 2 },
+      { tileId: 'field', count: 2 }, { tileId: 'road', count: 3 }, { tileId: 'road-bend', count: 3 },
       { tileId: 'junction', count: 1 }, { tileId: 'stift', count: 1 },
     ],
     markt: [
