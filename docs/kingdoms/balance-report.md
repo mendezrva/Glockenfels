@@ -20,7 +20,7 @@ Run it yourself: `npm run sim -w packages/kingdoms -- 400` (add `--json`, or ove
 | Each duchy wins about 25% | Salz 23.8%, Wein 24.5%, Forst 25.7%, Hopfen 26.1% | Met |
 | Average score per duchy close together | 55.2, 55.3, 55.4, 55.9 | Met |
 | Balanced bot slightly best | Wins per seat: balanced 36.8%, reacher 22.5%, cultivator 3.9% | Met (balanced is clearly best, not just slightly) |
-| Neither pure style beats the other clearly | Reachers beat cultivators 81% to 19% | **Not met** |
+| Neither pure style beats the other clearly | Reachers beat cultivators 81% to 19% | Dropped (see decisions) |
 | About 55% home points, 45% foreign | 66% home, 34% foreign | Short |
 | Dead tiles under 2% | Under 0.1% (none seen in 400 games) | Met |
 | Everyone actively expands | 96% of duchies close their gap (on average in round 4 or 5); 92% join a league; in 81% of games all four are linked | Met |
@@ -70,7 +70,10 @@ The extremes lose. A pure reacher wins about 1 game in 5, and a pure cultivator 
 | Markt piles of 3 | 73% home points; left at 6 |
 | Wanderers | Not changed from 7 |
 
-## Open decisions
+## Decisions
 
-1. **Should a pure home-builder be able to win?** Today mixing both is clearly best and both extremes lose, which pushes every player to reach and cultivate. Making pure cultivation competitive would mean weakening the Markt (for example, Markt tiles worth less than home tiles), which also weakens the reason to connect.
-2. **Is 66/34 home/foreign close enough to 55/45?** Getting closer needs a bigger shared area, which so far has unbalanced the duchies.
+1. **Should a pure home-builder be able to win?** Mark decided no (2026-11-10): mixing reach and cultivation should win, so the Markt stays as strong as it is and the "neither pure style beats the other" target is dropped. The remaining style target is that a balanced player does best, which is met.
+
+## Open questions
+
+1. **Is 66/34 home/foreign close enough to 55/45?** Getting closer needs a bigger shared area, which so far has unbalanced the duchies. Balanced bots leaning 60% or 74% home win equally, so this is a style range rather than a requirement.
