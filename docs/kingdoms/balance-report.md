@@ -21,6 +21,21 @@ What this shows:
 - **Wide tables link less.** With six, everyone links in 46% of games (four players: 66 to 74%). A 7 × 3 Markt was worse (24%), so the default wide Markt is 5 × 3.
 - Next tuning steps: a 5-player seat layout for the south seat, and per-table-size power values (for example Salz's Zoll factor) if the small-table numbers matter.
 
+## Quest doubles (v0.8.1)
+
+Mark asked whether one move can pay several cards. It can, automatically, so the first deal was re-dealt: each line's three cards now need different kinds of moves. 400 games, four players, balanced bots:
+
+| Line | Low | Medium | High | Quest points per game | Two cards on one move | Wins |
+|---|---|---|---|---|---|---|
+| Salz | 57% | 36% | 14% | 6.2 | 0.3% of games | 26.3% |
+| Wein | 57% | 30% | 13% | 5.6 | 1.8% | 22.6% |
+| Forst | 53% | 29% | 18% | 5.9 | 1.3% | 24.5% |
+| Hopfen | 65% | 33% | 19% | 6.8 | 0.3% | 26.6% |
+
+With the first deal, doubles were Forst 32%, Salz 14%, Wein 9% (two road-length cards, two Burg-size cards, a Stift card pair). Erz and Tuch: 57 / 30 / 13% and 48 / 24 / 16%, doubles 0 to 0.3%. The six-line table still favours Hopfen and Tuch (7.5 and 8.4 quest points) because big tables finish more Burgs; a six-line pass is still owed.
+
+Raw output: `balance-v0.8.json` (updated).
+
 ## Side quests and one shared deck (v0.8)
 
 About 6,500 bot games. With one deck for all, the lines are even before quests; the cards were then tuned so each tier completes at about the same rate. 400 games, four players, balanced bots:

@@ -32,14 +32,14 @@ Every line plays with the **same home deck and the same Markt pile** (v0.8). Wha
 
 | Line | Seat | Story | Low (4) | Medium (7) | High (10) |
 | --- | --- | --- | --- | --- | --- |
-| **Salz** | North | The salt line builds walls. | Stadtmauer: finish a Burg of 4+ tiles | Zwei Banner: finish a Burg with 2+ banners | Residenzstadt: finish a Burg of 6+ tiles |
-| **Wein** | East | The wine line keeps the abbeys. | Klostergarten: hold a Stift with 7 of 8 neighbours built | Klostergründung: finish a Stift | Abtei in der Fremde: finish a Stift outside your portion |
-| **Forst** | South | The forest line keeps the roads. | Landstraße: finish a road of 5+ tiles | Fernstraße: finish a road of 6+ tiles | Zollstraße: finish a road joining 4 Burgs |
-| **Hopfen** | West | The hop line farms the open land. | Gute Flur: end holding a field touching 5 finished Burgs | Reiche Flur: 8 finished Burgs | Kornkammer: 10 finished Burgs |
+| **Salz** | North | The salt line builds walls. | Stadtmauer: finish a Burg of 4+ tiles | Residenz: place 12 Markt tiles | Stadttore: finish a road joining 4 Burgs |
+| **Wein** | East | The wine line keeps the abbeys. | Zwei Klöster: claim a second Stift | Pilgerweg: finish a road of 6+ tiles | Abtei in der Fremde: finish a Stift outside your portion |
+| **Forst** | South | The forest line keeps the roads. | Landstraße: finish a road of 5+ tiles | Wanderschaft: place 11 tiles on other lines' land | Weitgereist: send out your Wanderers 17 times |
+| **Hopfen** | West | The hop line farms the open land. | Dorf um Dorf: finish 3 Burgs | Friedensweg: finish a road of 6+ tiles | Kornkammer: end holding a field touching 10 finished Burgs |
 | **Erz** | (5 or 6) | The ore line sells at the Markt. | Marktrecht: place 10 Markt tiles | Residenzbau: finish a Burg with 2+ tiles in the Markt | Marktherr: place 15 Markt tiles |
-| **Tuch** | (6) | The cloth line settles where the trade is. | Niederlassung: place 7 tiles on other lines' land | Kontor: 11 tiles on other lines' land | Tauschhandel: swap 12 times |
+| **Tuch** | (6) | The cloth line settles where the trade is. | Niederlassung: place 7 tiles on other lines' land | Tauschhandel: swap 11 times | Bleichwiese: end holding a field touching 10 finished Burgs |
 
-A quest pays once, the moment it is met (end-of-game quests at the final scoring). All three are optional. Each line's cards total 21 points, and the bot simulator completes each tier at about the same rate for every line (low 52 to 57%, medium 29 to 34%, high 9 to 19%). No line has a special ability.
+A quest pays once, the moment it is met (end-of-game quests at the final scoring), with no choice to make and no limit per turn: if one move meets two cards, both pay. To keep that rare, no two cards of a line can be met by the same feature; each needs a different kind of move (a Burg, a road, a Stift, a count of placements or claims, or a field at the end). In 400 bot games a line paid two cards on one move in 0.3 to 1.8% of games, down from 32% for Forst and 14% for Salz with the first deal. All three are optional. Each line's cards total 21 points, and the bot simulator completes each tier at about the same rate for every line (low 52 to 57%, medium 29 to 34%, high 9 to 19%). No line has a special ability.
 
 The seats in the table above are for the standard four-player game. Any 2 to 6 different lines can play; see **Table sizes**.
 

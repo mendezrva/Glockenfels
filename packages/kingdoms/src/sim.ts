@@ -17,7 +17,7 @@ export interface GameResult {
   gapTurn: (number | null)[]; linkTurn: (number | null)[]; swaps: number[]; markt: number[]; foreignPlaced: number[];
   dead: number; placed: number; turns: number;
   byKind: Record<string, number>[];
-  quests: boolean[][]; questPts: number[];
+  quests: boolean[][]; questPts: number[]; questDoubles: number[];
 }
 
 function rng(seed: number) {
@@ -50,7 +50,7 @@ export function playGame(cfg: KConfig, seed: number, first: number, bots: BotPro
     gapTurn: P.map((p) => p.gapClosedTurn), linkTurn: P.map((p) => p.firstLinkTurn), swaps: P.map((p) => p.swaps),
     markt: P.map((p) => p.marktPlaced), foreignPlaced: P.map((p) => p.foreignPlaced),
     byKind: P.map((p) => ({ ...p.byKind })),
-    quests: P.map((p) => p.quests.slice()), questPts: P.map((p) => p.questPts),
+    quests: P.map((p) => p.quests.slice()), questPts: P.map((p) => p.questPts), questDoubles: P.map((p) => p.questDoubles),
     dead: s.dead, placed: Object.keys(s.board).length - before, turns,
   };
 }
@@ -83,6 +83,8 @@ export interface Report {
   /** Share of games each line completes each of its quests (low, medium, high) and its average quest points. */
   questRate: Record<string, number[]>;
   questPtsPerLine: Record<string, number>;
+  /** Share of games in which a line paid two or more quests on one move. */
+  questDoubleRate: Record<string, number>;
   avgScore: number;
   duchyKinds: Record<string, Record<string, number>>;
   scoreSpread: number;
@@ -151,6 +153,7 @@ export function runReport(cfg: KConfig, games: number, seed0 = 1): Report {
     zollPerGame: +mean(fair.map((r) => r.zollIn.reduce((a, b) => a + b, 0))).toFixed(1),
     questRate: Object.fromEntries(names.map((k) => [k, [0, 1, 2].map((i) => +pct(fair.filter((r) => r.quests[r.names.indexOf(k)][i]).length, fair.length).toFixed(1))])),
     questPtsPerLine: Object.fromEntries(names.map((k) => [k, +mean(fair.map((r) => r.questPts[r.names.indexOf(k)])).toFixed(1)])),
+    questDoubleRate: Object.fromEntries(names.map((k) => [k, +pct(fair.filter((r) => r.questDoubles[r.names.indexOf(k)] > 0).length, fair.length).toFixed(1)])),
     duchyKinds: Object.fromEntries(names.map((k) => [k, Object.fromEntries(['town', 'road', 'monastery', 'meadow'].map((kind) => [kind, +mean(fair.map((r) => r.byKind[r.names.indexOf(k)][kind])).toFixed(1)]))])),
     avgScore: +mean(fair.flatMap((r) => r.scores)).toFixed(1),
     scoreSpread: +mean(fair.map((r) => Math.max(...r.scores) - Math.min(...r.scores))).toFixed(1),

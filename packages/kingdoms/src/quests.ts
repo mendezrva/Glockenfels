@@ -9,7 +9,7 @@ export type QuestKind =
   | 'burg-size' | 'burg-banners' | 'burg-shared' | 'burg-markt'
   | 'stift' | 'stift-abroad'
   | 'road-size' | 'road-burgs' | 'road-loop'
-  | 'field-burgs' | 'linked-all' | 'markt-tiles' | 'foreign-tiles' | 'swaps' | 'wanderers-out' | 'stift-claim' | 'stift-neighbours';
+  | 'field-burgs' | 'linked-all' | 'markt-tiles' | 'foreign-tiles' | 'swaps' | 'wanderers-out' | 'stift-claim' | 'stift-neighbours' | 'claims' | 'burgs-done';
 
 export interface QuestDef {
   id: string;
@@ -84,6 +84,8 @@ export function stateMeets(s: KState, p: number, q: QuestDef, atEnd: boolean): b
     case 'foreign-tiles': return me.foreignPlaced >= q.n;
     case 'swaps': return me.swaps >= q.n;
     case 'wanderers-out': return me.wanderers === 0;
+    case 'claims': return me.claims >= q.n;
+    case 'burgs-done': return me.completed.town >= q.n;
     case 'stift-neighbours': {
       for (const f of s.features) {
         if (f.kind !== 'monastery' || !f.pieces.some((pc) => pc.player === p)) continue;
@@ -112,7 +114,7 @@ export function stateMeets(s: KState, p: number, q: QuestDef, atEnd: boolean): b
   }
 }
 
-export const isStateQuest = (k: QuestKind) => ['markt-tiles', 'foreign-tiles', 'swaps', 'wanderers-out', 'linked-all', 'field-burgs', 'stift-claim', 'stift-neighbours'].includes(k);
+export const isStateQuest = (k: QuestKind) => ['markt-tiles', 'foreign-tiles', 'swaps', 'wanderers-out', 'linked-all', 'field-burgs', 'stift-claim', 'stift-neighbours', 'claims', 'burgs-done'].includes(k);
 
 /** Is the spot in the Markt? Handy for bots weighing Markt quests. */
 export const inMarkt = (s: KState, x: number, z: number) => zoneOf(s.cfg, x, z) === 'markt';

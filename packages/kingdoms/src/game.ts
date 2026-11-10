@@ -42,6 +42,8 @@ export interface KPlayer {
   completed: Record<FeatureKind, number>;
   /** Which of the line's three quests are done, and the points they paid. */
   quests: boolean[]; questPts: number;
+  /** Wanderers placed over the game, and turns on which more than one quest paid. */
+  claims: number; questDoubles: number;
   gapClosedTurn: number | null; firstLinkTurn: number | null;
 }
 
@@ -492,7 +494,7 @@ export function createGame(cfg: KConfig, seed: number, first = 0): KState {
     players: cfg.duchies.map((_, i) => ({
       duchy: i, score: 0, wanderers: cfg.duchies[i].id === 'erz' ? cfg.powers.erzWanderers : cfg.wanderers, byKind: { road: 0, town: 0, monastery: 0, meadow: 0 }, homePts: 0, foreignPts: 0, zollIn: 0, zollOut: 0, forfeited: 0,
       swaps: 0, marktPlaced: 0, foreignPlaced: 0, gapClosedTurn: null, firstLinkTurn: null,
-      completed: { road: 0, town: 0, monastery: 0, meadow: 0 }, quests: cfg.duchies[i].quests.map(() => false), questPts: 0,
+      completed: { road: 0, town: 0, monastery: 0, meadow: 0 }, quests: cfg.duchies[i].quests.map(() => false), questPts: 0, claims: 0, questDoubles: 0,
     })),
     order: Array.from({ length: n }, (_, i) => (first + i) % n),
     seat: 0, turn: 0, passes: 0, gapClosed: Array(n).fill(false), links: [], dead: 0,
@@ -775,12 +777,15 @@ export function apply(s: KState, action: KAction): KState {
     if (!claimable(s, placed.key).includes(action.claim)) throw new Error('That feature is already claimed.');
     const f = featureOf(s, placed.featureIds[action.claim]);
     me.wanderers--;
+    me.claims++;
     f.pieces.push({ player: p, tileKey: placed.key, local: action.claim });
     s.events.push({ type: 'claimed', tileKey: placed.key, local: action.claim, player: p });
   }
+  const questsBefore = s.players.map((pl) => pl.quests.filter(Boolean).length);
   scoreCompleted(s, placed);
   refreshReach(s, p);
   checkStateQuests(s, p, false);
+  s.players.forEach((pl, i) => { if (pl.quests.filter(Boolean).length - questsBefore[i] > 1) pl.questDoubles++; });
   s.seat = (s.seat + 1) % s.order.length;
   const events = s.events;
   beginTurn(s);
