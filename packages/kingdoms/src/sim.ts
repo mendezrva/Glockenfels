@@ -12,7 +12,7 @@ import { DUCHIES, type DuchyId } from './tiles';
 
 export interface GameResult {
   winners: number[]; scores: number[]; profiles: string[]; names: string[];
-  home: number[]; foreign: number[]; zollIn: number[]; zollOut: number[];
+  home: number[]; foreign: number[]; zollIn: number[]; zollOut: number[]; forfeited: number[];
   gapTurn: (number | null)[]; linkTurn: (number | null)[]; swaps: number[]; markt: number[]; foreignPlaced: number[];
   dead: number; placed: number; turns: number;
   byKind: Record<string, number>[];
@@ -44,7 +44,7 @@ export function playGame(cfg: KConfig, seed: number, first: number, bots: BotPro
   const P = s.players;
   return {
     winners: s.winners ?? [], scores: P.map((p) => p.score), profiles: bots.map((b) => b.name), names: cfg.duchies.map((d) => d.name),
-    home: P.map((p) => p.homePts), foreign: P.map((p) => p.foreignPts), zollIn: P.map((p) => p.zollIn), zollOut: P.map((p) => p.zollOut),
+    home: P.map((p) => p.homePts), foreign: P.map((p) => p.foreignPts), zollIn: P.map((p) => p.zollIn), zollOut: P.map((p) => p.zollOut), forfeited: P.map((p) => p.forfeited),
     gapTurn: P.map((p) => p.gapClosedTurn), linkTurn: P.map((p) => p.firstLinkTurn), swaps: P.map((p) => p.swaps),
     markt: P.map((p) => p.marktPlaced), foreignPlaced: P.map((p) => p.foreignPlaced),
     byKind: P.map((p) => ({ ...p.byKind })),
@@ -64,6 +64,11 @@ export interface Report {
   profileWinPerSeat: Record<string, number>;
   headToHead: { cultivator: number; reacher: number };
   homeShare: number;
+  /** Share of feature points from contested land (the Markt and other lines' portions) after the award, and home points lost at the award per player. */
+  contestedShare: number;
+  forfeitPerPlayer: number;
+  /** Average round in which a line first links to another. */
+  linkTurnAvg: number;
   deadRate: number;
   gapClosedRate: number;
   gapTurnAvg: number;
@@ -127,6 +132,9 @@ export function runReport(cfg: KConfig, games: number, seed0 = 1): Report {
     profileWinPerSeat: Object.fromEntries(Object.keys(pw.wins).map((k) => [k, +pct(pw.wins[k], pw.seats[k]).toFixed(1)])),
     headToHead: { cultivator: +pct(hw.wins.cultivator ?? 0, h2h.length).toFixed(1), reacher: +pct(hw.wins.reacher ?? 0, h2h.length).toFixed(1) },
     homeShare: +pct(homePts, homePts + forPts).toFixed(1),
+    contestedShare: +pct(forPts, homePts + forPts - mean(fair.map((r) => r.forfeited.reduce((a, b) => a + b, 0)))).toFixed(1),
+    forfeitPerPlayer: +mean(fair.flatMap((r) => r.forfeited)).toFixed(1),
+    linkTurnAvg: +(mean(fair.flatMap((r) => r.linkTurn.filter((t): t is number => t !== null))) / n).toFixed(1),
     deadRate: +pct(dead, dead + placed).toFixed(2),
     gapClosedRate: +pct(gapTurns.length, seats).toFixed(1),
     gapTurnAvg: +(mean(gapTurns) / n).toFixed(1),

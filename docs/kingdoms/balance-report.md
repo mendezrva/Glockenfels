@@ -1,4 +1,4 @@
-# Heimfall balance report (v0.2)
+# Heimfall balance report (v0.4)
 
 Run it yourself: `npm run sim -w packages/kingdoms -- 400` (add `--json`, or override any setting, for example `scoring.stiftComplete=9` or `deck.wein.home.stift=3`). Raw numbers for this report are in `balance-v0.2.json` (v0.1 numbers are in `balance-v0.1.json`).
 
@@ -20,6 +20,31 @@ What this shows:
 - **Duchy powers scale with the table.** Salz's Zoll needs many swappers, so Salz is weak at small tables; Forst's double swap is strongest with few rivals. Erz and Tuch were tuned at six and are a little strong at four.
 - **Wide tables link less.** With six, everyone links in 46% of games (four players: 66 to 74%). A 7 × 3 Markt was worse (24%), so the default wide Markt is 5 × 3.
 - Next tuning steps: a 5-player seat layout for the south seat, and per-table-size power values (for example Salz's Zoll factor) if the small-table numbers matter.
+
+## Contested land and harder alliances (v0.4)
+
+Mark asked for more points to come from contested land and for alliances and the Markt to be harder to reach. About 2,500 bot games, 160 per variant unless noted. "Contested" is the share of feature points from the Markt and other lines' portions after the award.
+
+| Variant (4 players) | Contested | Struck off per player | Gap closes (round) | First link (round) | Everyone linked | Duchy wins |
+|---|---|---|---|---|---|---|
+| v0.3 baseline | about 28% | 0 | 3.7 | 7.5 | 76% | 23.5 to 26.8% |
+| Award 1:1 plus 10 | 51.8% | 6.5 | 3.6 | 7.0 | 89% | 22 to 29% |
+| Award plus Residenz bonus | 55.2% | 5.2 | 3.7 | 6.8 | 96% | 21 to 30% |
+| Award, Residenz, pact fee 3 | 51.0% | 7.1 | 3.7 | 7.3 | 90% | 23 to 28% |
+| **Adopted: plus Markt fee 1 (400 games)** | **53.9%** | **6.0** | **3.7** | **7.1** | **91%** | **20.4 to 28.0%** |
+| Adopted plus Vorland toll 1 | 48.7% | 8.5 | 3.7 | 7.3 | 91% | 17 to 39% (Hopfen) |
+| Pact fee 5, Markt fee 2 | 49.5% | 8.5 | 3.7 | 7.7 | 79% | 20 to 34% |
+| Adopted plus gap 3 | 46.9% | 10.2 | 5.3 | 9.0 | 80% | 17 to 35% |
+
+Findings:
+
+- The award is what moves contested points. It also makes players link more, because linking is how they reach contested land. Fees alone slow linking only a little.
+- The gap length is the one strong lever on how hard the Markt is to reach. Gap 3 needs a deck rebalance (Forst 17%) and probably one or two more rounds.
+- Pure cultivators win 4% of seats, reachers 19%, balanced bots 39%.
+- Other table sizes with the adopted set: 2 players 45.7% contested (only 70% link), 3 players 50%, 5 players 55%, 6 players 60%. The south seat problem at 5 remains.
+- Forst sits at 20.4% in the adopted set, the low end of acceptable.
+
+Raw output: `balance-v0.4.json`.
 
 ## How it was measured
 

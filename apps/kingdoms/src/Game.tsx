@@ -243,7 +243,7 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
           break;
         }
         case 'gapClosed': toast(`${nameOf(e.player)} (${s.cfg.duchies[e.player].name}) closed the gap. Their Markt pile is open`); break;
-        case 'linked': toast(`Markt league: ${e.players.map((q) => s.cfg.duchies[q].name).join(' and ')} are linked`); break;
+        case 'linked': toast(`Markt league: ${e.players.map((q) => s.cfg.duchies[q].name).join(' and ')} are linked${s.cfg.pactFee ? `. ${nameOf(batch.player)} paid ${s.cfg.pactFee} for the pact` : ''}`); break;
         case 'swap': toast(`${nameOf(e.player)} swapped with ${s.cfg.duchies[e.with].name}${e.zoll ? ` and paid ${e.zoll} Zoll` : ''}`); break;
         case 'reserved': if (e.player === batch.player || !seats[e.player].bot) toast(`${s.cfg.duchies[e.player].name}'s top tile fits nowhere, so it went to the reserve`); break;
         case 'dead': toast(`A ${s.cfg.duchies[e.player].name} tile fit nowhere and was lost`); break;
@@ -315,7 +315,7 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
                 <TileCard def={K_TILES[x.tileId]} rot={on && !swaps.length ? rot : 0} selected={on}
                   onClick={ok ? () => { buzz(8); if (on && !swaps.length) turnTile(); else { setSource(x.src); setSwaps(canUse(x.src, []) ? [] : (cands.find((c) => sameSource(c.source, x.src) && canUse(c.source, c.swaps))?.swaps ?? [])); } } : undefined}
                   label={`${x.label}: ${K_TILES[x.tileId].name}${ok ? '' : ' (fits nowhere)'}`} />
-                <small>{markt && <span className="dot" style={{ background: 'var(--gold)' }} />}{pileCaption(x.src)}</small>
+                <small>{markt && <span className="dot" style={{ background: 'var(--gold)' }} />}{pileCaption(x.src)}{x.src.kind === 'markt' && x.src.duchy !== p && s.cfg.marktFee ? ` −${s.cfg.marktFee}` : ''}</small>
               </div>
             );
           })}
@@ -480,11 +480,12 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
                   <span className="rank">{s.winners?.includes(pl.i) ? '👑' : i + 1}</span>
                   <span className="dot" />
                   <span className="pname">{nameOf(pl.i)} <em>{s.cfg.duchies[pl.i].name}</em></span>
-                  <small className="k-split">home {pl.homePts} · abroad {pl.foreignPts} · Zoll {pl.zollIn - pl.zollOut >= 0 ? '+' : ''}{pl.zollIn - pl.zollOut}</small>
+                  <small className="k-split">home {pl.homePts}{pl.forfeited ? ` (${pl.forfeited} not confirmed)` : ''} · contested {pl.foreignPts} · Zoll {pl.zollIn - pl.zollOut >= 0 ? '+' : ''}{pl.zollIn - pl.zollOut}</small>
                   <b>{pl.score}</b>
                 </li>
               ))}
             </ol>
+            {s.cfg.awardRatio > 0 && <p className="note">The award confirms home points only up to your contested points{s.cfg.awardAllowance ? ` plus ${s.cfg.awardAllowance}` : ''}.</p>}
             <p className="note">{Object.keys(s.board).length} tiles on the board · {s.links.length} Markt links</p>
             <div className="panel-row">
               <button type="button" onClick={() => { setShowEnd(false); go('board'); }}>See the board</button>
@@ -512,9 +513,10 @@ function HelpCard({ onClose, s }: { onClose: () => void; s: KState }) {
         <ul>
           <li><b>Pick a pile.</b> <span>Your home deck, your reserve, or any Markt pile you can reach. The top tile is face up.</span></li>
           <li><b>Close your gap.</b> <span>Build from your Stammburg to your Vorland by the Markt. That opens your Markt pile and lets you swap.</span></li>
-          <li><b>Link through the Markt.</b> <span>Markt tiles join Vorlands. Linked duchies build on each other's Vorland and share Markt piles. Links chain into one league.</span></li>
+          <li><b>Link through the Markt.</b> <span>Markt tiles join Vorlands. Linked duchies build on each other's Vorland and share Markt piles. Links chain into one league.{s.cfg.pactFee ? ` Whoever lays the linking tile pays ${s.cfg.pactFee} for each new pact.` : ''}{s.cfg.marktFee ? ` Drawing from another line's Markt pile costs ${s.cfg.marktFee} Zoll, paid to that line.` : ''}</span></li>
           <li><b>Swap.</b> <span>Trade your tile for another duchy's top tile, then play it on your land or theirs. Pay {s.cfg.zoll} Zoll if that duchy has closed its gap.</span></li>
-          <li><b>Score.</b> <span>Burg 2 a tile (+2 a banner), road 1 a tile (+1 a waymark), Stift {s.cfg.scoring.stiftComplete}, fields {s.cfg.scoring.fieldPerBurg} for each finished Burg. {s.cfg.rounds} rounds.</span></li>
+          <li><b>Score.</b> <span>Burg 2 a tile (+2 a banner), road 1 a tile (+1 a waymark), Stift {s.cfg.scoring.stiftComplete}, fields {s.cfg.scoring.fieldPerBurg} for each finished Burg.{s.cfg.scoring.residenzPerTile ? ` Burgs and roads earn ${s.cfg.scoring.residenzPerTile} more for each of their tiles in the Markt.` : ''} {s.cfg.rounds} rounds.</span></li>
+          {s.cfg.awardRatio > 0 && <li><b>The award.</b> <span>Points from your own portion count only up to your contested points (the Markt and other lines' land){s.cfg.awardRatio !== 1 ? ` times ${s.cfg.awardRatio}` : ''}{s.cfg.awardAllowance ? `, plus ${s.cfg.awardAllowance}` : ''}. The rest is struck off at the end.</span></li>}
         </ul>
         <ul>
           {s.cfg.duchies.map((d, i) => <li key={d.id} style={{ '--pc': duchyCss(i) } as React.CSSProperties}><b><span className="dot" /> {d.name}</b> <span>{d.theme}. {d.power}</span></li>)}

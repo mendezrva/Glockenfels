@@ -22,8 +22,22 @@ export interface KConfig {
     roadPerTile: number; roadPerBadge: number;
     stiftComplete: number; stiftIncompletePerTile: number;
     fieldPerBurg: number;
+    /** Extra points per Burg or road tile that lies in the Residenz land (the Markt zone). */
+    residenzPerTile: number;
   };
   zoll: number;
+  /**
+   * The award: points from your own portion count only up to this many times your points from
+   * contested land (the Markt and other lines' portions), plus the allowance. 0 turns the rule off.
+   */
+  awardRatio: number;
+  awardAllowance: number;
+  /** Zoll paid to a line for drawing from its Markt pile (not your own). */
+  marktFee: number;
+  /** Zoll paid to a line for building on its Vorland. */
+  vorlandToll: number;
+  /** Points the duke who places the linking tile pays (to nobody) for each new pact it creates. */
+  pactFee: number;
   powers: {
     /** Salz collects this many times the Zoll on every swap into Salz, even from Hopfen; the payer still pays only the normal Zoll. */
     salzZollFactor: number;
@@ -68,8 +82,14 @@ export const DEFAULT_CONFIG: KConfig = {
     roadPerTile: 1, roadPerBadge: 1,
     stiftComplete: 7, stiftIncompletePerTile: 1,
     fieldPerBurg: 3,
+    residenzPerTile: 1,
   },
   zoll: 1,
+  awardRatio: 1,
+  awardAllowance: 10,
+  marktFee: 1,
+  vorlandToll: 0,
+  pactFee: 3,
   powers: { salzZollFactor: 2, weinPeek: 2, weinMode: 'choose', forstSwaps: 2, hopfenPaysZoll: false, erzWanderers: 10, tuchEarlySwap: true },
   swapsPerTurn: 1,
   marktPile: 6,

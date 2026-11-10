@@ -83,6 +83,7 @@ export function chooseTurn(s: KState, profile: BotProfile, rnd: () => number): K
   s.players.forEach((_, q) => { const c = comp.get(anchorKey(s, q))!; anchorComps.set(c, [...(anchorComps.get(c) ?? []), q]); });
   const scarcity = 1.2 + Math.max(0, 4 - me.wanderers) * 0.8;
 
+  const capped = s.cfg.awardRatio > 0 && me.homePts + 6 > me.foreignPts * s.cfg.awardRatio + s.cfg.awardAllowance;
   let best: { a: KAction; v: number } | null = null;
   for (const c of candidates(s, p)) {
     const zollPaid = c.zoll.reduce((a, z) => a + z.amount, 0);
@@ -98,6 +99,8 @@ export function chooseTurn(s: KState, profile: BotProfile, rnd: () => number): K
       let nb = 0;
       for (let e = 0; e < 4; e++) if (tileAt(s, pl.x + DX[e], pl.z + DZ[e])) nb++;
       if (sector === p && zone === 'stamm') bias += profile.cultivate * (0.5 + 0.4 * nb);
+      if (zone === 'markt') bias += s.cfg.scoring.residenzPerTile * 0.8;
+      if (zone === 'vorland' && sector !== p && sector >= 0 && s.gapClosed[sector]) bias -= s.cfg.vorlandToll * (1 + 1 / (n - 1));
       if (!s.gapClosed[p]) {
         const after = Math.min(gapBefore, manhattanToSet(pl.x, pl.z, vorTiles));
         let joinsVor = false;
@@ -118,7 +121,7 @@ export function chooseTurn(s: KState, profile: BotProfile, rnd: () => number): K
           if (cc === mine) touchesMine = true; else merged.add(cc);
         }
         if (touchesMine) for (const cc of merged) {
-          bias += profile.reach * 5 * (homeComps.get(cc)?.length ?? 0);
+          bias += profile.reach * 5 * (homeComps.get(cc)?.length ?? 0) - s.cfg.pactFee * (homeComps.get(cc)?.length ?? 0);
           bias += profile.reach * 2 * (anchorComps.get(cc)?.filter((q) => q !== p).length ?? 0);
         }
       }
@@ -160,13 +163,15 @@ export function chooseTurn(s: KState, profile: BotProfile, rnd: () => number): K
         points += owner === p ? gain + (nbc === 7 ? scarcity * 0.6 : 0) : -gain / (n - 1);
       }
       const evalClaim = (claim: number | null) => {
-        let v = points + bias;
+        let v = points;
         if (claim !== null) {
           const f = pv[claim];
           if (f.complete) v += featureValueFromPreview(s, f, pl.x, pl.z);
           else v += estimate(s, f, pl.x, pl.z, late) - (f.kind === 'meadow' ? 1.5 * late : 0) - scarcity;
         }
-        return v + rnd() * profile.noise;
+        // The award: once seat-land points outrun what contested land allows, more of them are worth little.
+        if (capped) v = sector === p ? v * 0.35 : v * (1 + Math.min(1.5, s.cfg.awardRatio) * 0.6) + 1;
+        return v + bias + rnd() * profile.noise;
       };
       const options: (number | null)[] = [null];
       if (me.wanderers > 0) pv.forEach((f, i) => { if (!f.pieces.length && seenClaimOk(pv, i)) options.push(i); });

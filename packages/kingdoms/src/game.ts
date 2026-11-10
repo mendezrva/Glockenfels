@@ -33,6 +33,8 @@ export interface KPlayer {
   wanderers: number;
   /** Score split for the balance report. */
   homePts: number; foreignPts: number; zollIn: number; zollOut: number;
+  /** Home points lost at the award. */
+  forfeited: number;
   byKind: Record<FeatureKind, number>;
   swaps: number; marktPlaced: number; foreignPlaced: number;
   gapClosedTurn: number | null; firstLinkTurn: number | null;
@@ -257,6 +259,10 @@ export function resolve(s: KState, p: number, source: Source, swaps: number[]): 
     const pile = s.markt[source.duchy];
     tileId = pile[pile.length - 1] ?? null;
     style = MARKT;
+    if (tileId && s.cfg.marktFee && source.duchy !== p) {
+      if (s.players[p].score < s.cfg.marktFee) return null;
+      return { source, swaps, tileId, style, zoll: [{ to: source.duchy, amount: s.cfg.marktFee }] };
+    }
   }
   if (!tileId) return null;
   if (swaps.length) {
@@ -475,7 +481,7 @@ export function createGame(cfg: KConfig, seed: number, first = 0): KState {
     board: {}, features: [], parent: [],
     decks: [], markt: [], reserve: Array(n).fill(null),
     players: cfg.duchies.map((_, i) => ({
-      duchy: i, score: 0, wanderers: cfg.duchies[i].id === 'erz' ? cfg.powers.erzWanderers : cfg.wanderers, byKind: { road: 0, town: 0, monastery: 0, meadow: 0 }, homePts: 0, foreignPts: 0, zollIn: 0, zollOut: 0,
+      duchy: i, score: 0, wanderers: cfg.duchies[i].id === 'erz' ? cfg.powers.erzWanderers : cfg.wanderers, byKind: { road: 0, town: 0, monastery: 0, meadow: 0 }, homePts: 0, foreignPts: 0, zollIn: 0, zollOut: 0, forfeited: 0,
       swaps: 0, marktPlaced: 0, foreignPlaced: 0, gapClosedTurn: null, firstLinkTurn: null,
     })),
     order: Array.from({ length: n }, (_, i) => (first + i) % n),
@@ -507,12 +513,20 @@ export function neighbourCount(s: KState, t: { x: number; z: number }) {
   return n;
 }
 
+/** How many of these tiles lie in the Residenz land (the Markt zone). */
+export function residenzTiles(s: KState, keys: string[]) {
+  let c = 0;
+  for (const k of keys) { const [x, z] = k.split(',').map(Number); if (zoneOf(s.cfg, x, z) === 'markt') c++; }
+  return c;
+}
+
 export function featureValue(s: KState, f: KFeature, complete: boolean): number {
   const sc = s.cfg.scoring;
   const n = f.tiles.length;
+  const bonus = sc.residenzPerTile && (f.kind === 'road' || f.kind === 'town') ? sc.residenzPerTile * residenzTiles(s, f.tiles) : 0;
   switch (f.kind) {
-    case 'road': return n * sc.roadPerTile + f.badge * sc.roadPerBadge;
-    case 'town': return complete ? n * sc.burgPerTile + f.banner * sc.burgPerBanner : n * sc.burgIncompletePerTile + f.banner * sc.burgIncompletePerBanner;
+    case 'road': return n * sc.roadPerTile + f.badge * sc.roadPerBadge + bonus;
+    case 'town': return (complete ? n * sc.burgPerTile + f.banner * sc.burgPerBanner : n * sc.burgIncompletePerTile + f.banner * sc.burgIncompletePerBanner) + bonus;
     // An unfinished Stift scores per tile of its 3 × 3, but always less than a finished one.
     case 'monastery': return complete ? sc.stiftComplete : Math.min(sc.stiftComplete - 1, (neighbourCount(s, s.board[f.tiles[0]]) + 1) * sc.stiftIncompletePerTile);
     case 'meadow': {
@@ -579,6 +593,12 @@ function endGame(s: KState) {
     if (s.parent[f.id] !== f.id || f.scored || !f.pieces.length) continue;
     scoreFeature(s, f, false);
   }
+  // The award: points from a line's own portion count only in proportion to what it holds of the contested land.
+  if (s.cfg.awardRatio > 0) for (const pl of s.players) {
+    const cap = Math.floor(pl.foreignPts * s.cfg.awardRatio) + s.cfg.awardAllowance;
+    const lost = Math.max(0, pl.homePts - cap);
+    if (lost) { pl.forfeited = lost; pl.score -= lost; }
+  }
   const top = Math.max(...s.players.map((p) => p.score));
   s.winners = s.players.map((_, i) => i).filter((i) => s.players[i].score === top);
   s.events.push({ type: 'ended', winners: s.winners });
@@ -601,6 +621,7 @@ function refreshReach(s: KState, by: number) {
     if (s.links.includes(k) || comp.get(homeKey(s, a)) !== comp.get(homeKey(s, b))) continue;
     s.links.push(k);
     for (const p of [a, b]) s.players[p].firstLinkTurn ??= s.turn;
+    if (by >= 0 && s.cfg.pactFee) { const fee = Math.min(s.cfg.pactFee, Math.max(0, s.players[by].score)); s.players[by].score -= fee; s.players[by].zollOut += fee; }
     if (by >= 0) s.events.push({ type: 'linked', players: [a, b] });
   }
 }
@@ -665,7 +686,10 @@ export function apply(s: KState, action: KAction): KState {
     if (src.depth > 0 && s.cfg.powers.weinMode === 'bury') deck.unshift(...deck.splice(deck.length - src.depth, src.depth));
   }
   else if (src.kind === 'reserve') { tileId = s.reserve[p]!; s.reserve[p] = null; }
-  else tileId = s.markt[src.duchy].pop()!;
+  else {
+    tileId = s.markt[src.duchy].pop()!;
+    for (const z of c.zoll) { s.players[p].score -= z.amount; s.players[p].zollOut += z.amount; s.players[z.to].score += z.amount; s.players[z.to].zollIn += z.amount; }
+  }
   // Swaps: hand the tile to the bottom of the other duchy's deck and take its top tile.
   const me = s.players[p];
   for (const q of action.swaps) {
@@ -683,7 +707,14 @@ export function apply(s: KState, action: KAction): KState {
   const placed = addTile(s, tileId, action.x, action.z, action.rot, c.style, p);
   s.events.push({ type: 'placed', tileKey: placed.key, player: p });
   if (c.style === MARKT) me.marktPlaced++;
-  if (sectorOf(s.cfg, action.x, action.z) !== p) me.foreignPlaced++;
+  const owner = sectorOf(s.cfg, action.x, action.z);
+  if (owner !== p) me.foreignPlaced++;
+  // Building on another line's Vorland pays that line a toll (what you can afford; Hopfen is exempt).
+  if (s.cfg.vorlandToll && owner >= 0 && owner !== p && s.gapClosed[owner] && zoneOf(s.cfg, action.x, action.z) === 'vorland'
+    && !(s.cfg.duchies[p].id === 'hopfen' && !s.cfg.powers.hopfenPaysZoll)) {
+    const toll = Math.min(s.cfg.vorlandToll, Math.max(0, me.score));
+    me.score -= toll; me.zollOut += toll; s.players[owner].score += toll; s.players[owner].zollIn += toll;
+  }
   if (action.claim !== null) {
     if (me.wanderers <= 0) throw new Error('No Wanderers left.');
     if (!claimable(s, placed.key).includes(action.claim)) throw new Error('That feature is already claimed.');

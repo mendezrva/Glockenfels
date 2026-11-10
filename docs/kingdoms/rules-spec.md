@@ -1,4 +1,4 @@
-# Heimfall, rules spec (v0.1)
+# Heimfall, rules spec (v0.4)
 
 Heimfall is a fork of Glockenfels. It keeps square tiles, edge matching and Wanderers, and adds four rival duchies of a fractured Bavaria around a central Markt. It lives on the `kingdoms` branch and never merges into `main`; the original game is untouched.
 
@@ -180,6 +180,17 @@ Each duchy has a **home deck of 22 tiles** (same size, different mix) and a **Ma
 Majority rules as in Glockenfels: most Wanderers on a feature scores it; ties all score in full.
 
 **Game end:** after 17 rounds, score unfinished features and fields. Highest score wins; ties share the win. Home tiles you never drew score nothing, so a Markt tile always costs you a home tile.
+
+## The award and the price of company (v0.4)
+
+These rules push points toward contested land and make the Markt and its pacts cost something. Each is one config knob.
+
+- **The award** (`awardRatio: 1`, `awardAllowance: 10`). At the end the Emperor confirms points from your own portion only up to your contested points plus 10. Contested points come from features that lie mostly in the Markt or in another line's portion. Home points above the cap are struck off and shown in the results as "not confirmed".
+- **The Residenz bonus** (`scoring.residenzPerTile: 1`). A Burg or road scores 1 more for each of its tiles in the Markt.
+- **Pact fee** (`pactFee: 3`). Whoever lays the tile that links two lines pays 3 points for each new pact. Nobody receives it.
+- **Markt fee** (`marktFee: 1`). Drawing from another line's Markt pile costs 1 Zoll, paid to that line. You cannot draw if you cannot pay.
+- **Vorland toll** (`vorlandToll`, off). Building on another line's Vorland pays that line. Off because it hands Hopfen, who pays no Zoll, 39% of wins.
+- **A longer gap** (`gap: 3`, not adopted). Moves gap closing from round 3.7 to 5.4 and the first link from round 7 to 9. It is the strongest way to make the Markt harder to reach but it breaks the two-space rule Mark set, so it waits on his call.
 
 ## Changes from the brainstorm, and why
 
