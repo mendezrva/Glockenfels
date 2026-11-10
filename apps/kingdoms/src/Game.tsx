@@ -9,7 +9,7 @@ import { Canvas } from '@react-three/fiber';
 import { PerformanceMonitor } from '@react-three/drei';
 import { analyze, type GameState } from '@glockenfels/engine';
 import {
-  candidates, chooseTurn, current, K_TILES, league, layout, marktAccess, placementsFor, preview, PROFILES,
+  canSwap, candidates, chooseTurn, current, K_TILES, league, layout, marktAccess, placementsFor, preview, PROFILES,
   resolve, swapsAllowed, zollFor, type KEvent, type KState, type Source,
 } from '@glockenfels/kingdoms';
 import { TILE } from '@gf/tiles/buildTile';
@@ -288,7 +288,7 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
   const hidden = curtain !== null;
   const myLeague = league(s, p);
   const access = marktAccess(s, p);
-  const canSwapNow = isHuman && source && source.kind !== 'markt' && s.gapClosed[p] && swaps.length < swapsAllowed(s, p);
+  const canSwapNow = isHuman && source && source.kind !== 'markt' && canSwap(s, p) && swaps.length < swapsAllowed(s, p);
 
   // ---------- dock ----------
   let dock: JSX.Element;
@@ -334,7 +334,12 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
               </div>
             );
           })}
-          {swaps.length > 0 && <button type="button" className="k-undo" aria-label="Undo swap" onClick={() => setSwaps([])}>↶</button>}
+          {swaps.length > 0 && cand && (
+            <div className="k-pile on" style={{ '--pc': duchyCss(swaps[swaps.length - 1]) } as React.CSSProperties}>
+              <TileCard def={K_TILES[cand.tileId]} rot={rot} selected onClick={() => { buzz(8); turnTile(); }} label={`In hand after swapping: ${K_TILES[cand.tileId].name}. Tap to turn it`} />
+              <small><span className="dot" />In hand</small>
+            </div>
+          )}
         </div>
         {spot && claimOptions.length > 0 && (
           <div className="claim-opts k-claims" role="group" aria-label="Wanderer">
@@ -347,6 +352,7 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
           </div>
         )}
         <div className="k-actions">
+          {swaps.length > 0 && <button type="button" className="k-undo" aria-label="Undo swap" title="Undo swap" onClick={() => setSwaps([])}>↶</button>}
           <button type="button" className="k-turn" onClick={turnTile} disabled={!!spot && spotWays < 2} aria-label="Turn tile" title="Turn tile (R)">⟳</button>
           <button type="button" className="primary" disabled={!spot} onClick={confirm}>{!cand ? 'No tile' : spot ? (claim === null ? 'Place' : 'Place + Wanderer') : 'Tap a spot'}</button>
         </div>
@@ -356,9 +362,10 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
 
   const standings = s.players.map((pl, i) => ({ ...pl, i })).sort((a, b) => b.score - a.score);
   const homeCell = layout(s.cfg, p).home;
+  const landRadius = Math.max(...s.players.map((_, i) => { const [hx, hz] = layout(s.cfg, i).home; return Math.max(Math.abs(hx), Math.abs(hz)); })) + 4;
 
   return (
-    <div className="app game kingdoms">
+    <div className={`app game kingdoms${s.players.length > 4 ? ' many' : ''}`}>
       <Canvas
         className="scene" shadows={quality.shadows ? 'soft' : false} dpr={quality.dpr} flat
         gl={{ antialias: !(quality.ao || quality.tiltShift), powerPreference: 'high-performance' }}
@@ -370,7 +377,7 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
           <Lights extent={bounds.extent + 4} shadows={quality.shadows} />
           <Mountains />
           {tilt >= 15 && <Clouds extent={bounds.extent + 4} />}
-          {terrain && <Territory s={s} version={version} player={isHuman ? p : null} />}
+          {terrain && <Territory s={s} version={version} player={isHuman ? p : null} radius={landRadius} />}
           {isHuman && !hidden && <GapPulse s={s} player={p} />}
           <BoardTiles tiles={tiles} bounce={bounce} shadows={quality.shadows} />
           <StyleBands s={s} version={version} />
@@ -379,7 +386,7 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
             <>
               <SpotMarkers cells={cells} selected={spot} color={color} onPick={pickSpot} />
               {spot && <GhostTile def={def} rot={rot} x={spot[0]} z={spot[1]} s={ghostShim} onTap={turnTile} color={color} ways={spotWays} onConfirm={confirm} onCancel={cells.length > 1 ? () => setSpot(null) : undefined} />}
-              {spot && claimShim && claimOptions.length > 0 && (
+              {spot && claimShim && claimOptions.length === 1 && (
                 <ClaimSpots s={claimShim} options={claimOptions} selected={claim} color={color} player={pieceSlot(p)} onPick={(l) => setClaim(claim === l ? null : l)} />
               )}
             </>
@@ -480,7 +487,7 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
             </ol>
             <p className="note">{Object.keys(s.board).length} tiles on the board · {s.links.length} Markt links</p>
             <div className="panel-row">
-              <button type="button" onClick={() => setShowEnd(false)}>See the board</button>
+              <button type="button" onClick={() => { setShowEnd(false); go('board'); }}>See the board</button>
               <button type="button" className="primary" onClick={onQuit}>New game</button>
             </div>
           </div>
@@ -491,9 +498,15 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
 }
 
 function HelpCard({ onClose, s }: { onClose: () => void; s: KState }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
   return (
     <div className="curtain soft" onClick={onClose}>
       <div className="curtain-card rules" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="k-close" aria-label="Close" onClick={onClose}>✕</button>
         <h2>Tiny Kingdoms</h2>
         <ul>
           <li><b>Pick a pile.</b> <span>Your home deck, your reserve, or any Markt pile you can reach. The top tile is face up.</span></li>

@@ -1,17 +1,21 @@
-/** Tiny Kingdoms: a setup screen (who rules which duchy), then the game. */
+/** Tiny Kingdoms: a setup screen (how many duchies, which ones, who rules them), then the game. */
 import { useState } from 'react';
-import { DUCHIES } from '@glockenfels/kingdoms';
+import { DUCHIES, type DuchyId } from '@glockenfels/kingdoms';
 import { Game } from './Game';
-import { duchyCss } from './colors';
 import { loadSave, useKingdoms, writeSave, type SavedKingdoms, type Seat } from './session';
 
-const SEATS_KEY = 'glockenfels.kingdoms.seats.v1';
-function loadSeats(): Seat[] {
+interface SetupSeat extends Seat { duchy: DuchyId }
+interface Setup { count: number; seats: SetupSeat[] }
+
+const SETUP_KEY = 'glockenfels.kingdoms.setup.v2';
+const NAMES = ['You', 'Abt Ulrich', 'Jägerin Vroni', 'Bauer Sepp', 'Steiger Hans', 'Weberin Lene'];
+const freshSetup = (): Setup => ({ count: 4, seats: DUCHIES.map((d, i) => ({ name: NAMES[i], bot: i > 0, duchy: d.id })) });
+function loadSetup(): Setup {
   try {
-    const s = JSON.parse(localStorage.getItem(SEATS_KEY) ?? 'null') as Seat[] | null;
-    if (s && s.length === 4) return s;
+    const s = JSON.parse(localStorage.getItem(SETUP_KEY) ?? 'null') as Setup | null;
+    if (s && s.seats?.length === DUCHIES.length && s.count >= 2 && s.count <= 6) return s;
   } catch { /* ignore */ }
-  return [{ name: 'You', bot: false }, { name: 'Abt Ulrich', bot: true }, { name: 'Jägerin Vroni', bot: true }, { name: 'Bauer Sepp', bot: true }];
+  return freshSetup();
 }
 
 function Running({ saved, onQuit }: { saved: SavedKingdoms; onQuit: () => void }) {
@@ -21,39 +25,65 @@ function Running({ saved, onQuit }: { saved: SavedKingdoms; onQuit: () => void }
 
 export default function App() {
   const [saved, setSaved] = useState<SavedKingdoms | null>(() => (new URLSearchParams(location.search).has('resume') ? loadSave() : null));
-  const [seats, setSeats] = useState<Seat[]>(loadSeats);
+  const [setup, setSetup] = useState<Setup>(loadSetup);
   const resumable = loadSave();
   if (saved) return <Running key={saved.seed} saved={saved} onQuit={() => setSaved(null)} />;
 
+  const seats = setup.seats.slice(0, setup.count);
   const start = () => {
-    try { localStorage.setItem(SEATS_KEY, JSON.stringify(seats)); } catch { /* ignore */ }
+    try { localStorage.setItem(SETUP_KEY, JSON.stringify(setup)); } catch { /* ignore */ }
     const seed = (Math.random() * 2 ** 31) >>> 0;
-    const s: SavedKingdoms = { v: 1, seed, first: seed % 4, seats, log: [] };
+    const s: SavedKingdoms = {
+      v: 1, seed, first: seed % setup.count, log: [],
+      seats: seats.map(({ name, bot }) => ({ name, bot })), duchies: seats.map((x) => x.duchy),
+    };
     writeSave(s);
     setSaved(s);
   };
-  const set = (i: number, p: Partial<Seat>) => setSeats((o) => o.map((x, j) => (j === i ? { ...x, ...p } : x)));
+  const set = (i: number, p: Partial<SetupSeat>) => setSetup((o) => ({ ...o, seats: o.seats.map((x, j) => (j === i ? { ...x, ...p } : x)) }));
+  // Picking a duchy someone else holds swaps the two, so every seat keeps a different duchy.
+  const pick = (i: number, duchy: DuchyId) => setSetup((o) => {
+    const j = o.seats.findIndex((x) => x.duchy === duchy);
+    return { ...o, seats: o.seats.map((x, k) => (k === i ? { ...x, duchy } : k === j ? { ...x, duchy: o.seats[i].duchy } : x)) };
+  });
 
   return (
     <div className="k-setup">
       <div className="k-setup-card">
         <div className="rauten" />
         <h1>Tiny Kingdoms</h1>
-        <p className="k-sub">A Glockenfels game of four rival duchies, a fractured Markt, and the choice between reaching out and building at home.</p>
+        <p className="k-sub">The old king is dead and his realm lies in pieces. Rebuild the roads, link your duchy through the Markt, and earn the crown before the last bell.</p>
+        <div className="k-count">
+          <span>Duchies</span>
+          <div className="seg" role="group" aria-label="Number of duchies">
+            {[2, 3, 4, 5, 6].map((n) => (
+              <button key={n} type="button" aria-pressed={setup.count === n} onClick={() => setSetup((o) => ({ ...o, count: n }))}>{n}</button>
+            ))}
+          </div>
+        </div>
         <div className="k-duchies">
-          {DUCHIES.map((d, i) => (
-            <div key={d.id} className="k-duchy" style={{ '--pc': duchyCss(i) } as React.CSSProperties}>
-              <div className="k-duchy-head"><span className="dot" /><b>{d.name}</b><em>{d.theme}</em></div>
-              <p>{d.power}</p>
-              <div className="k-duchy-row">
-                <input aria-label={`${d.name} ruler name`} value={seats[i].name} maxLength={18} onChange={(e) => set(i, { name: e.target.value })} />
-                <div className="seg">
-                  <button type="button" aria-pressed={!seats[i].bot} onClick={() => set(i, { bot: false })}>Person</button>
-                  <button type="button" aria-pressed={seats[i].bot} onClick={() => set(i, { bot: true })}>Bot</button>
+          {seats.map((seat, i) => {
+            const d = DUCHIES.find((x) => x.id === seat.duchy)!;
+            return (
+              <div key={i} className="k-duchy" style={{ '--pc': d.colour } as React.CSSProperties}>
+                <div className="k-duchy-head">
+                  <span className="dot" />
+                  <select aria-label={`Seat ${i + 1} duchy`} value={seat.duchy} onChange={(e) => pick(i, e.target.value as DuchyId)}>
+                    {DUCHIES.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
+                  </select>
+                  <em>{d.theme}</em>
+                </div>
+                <p>{d.power}</p>
+                <div className="k-duchy-row">
+                  <input aria-label={`${d.name} ruler name`} value={seat.name} maxLength={18} onChange={(e) => set(i, { name: e.target.value })} />
+                  <div className="seg">
+                    <button type="button" aria-pressed={!seat.bot} onClick={() => set(i, { bot: false })}>Person</button>
+                    <button type="button" aria-pressed={seat.bot} onClick={() => set(i, { bot: true })}>Bot</button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         <div className="panel-row">
           {resumable && resumable.log.length > 0 && <button type="button" onClick={() => setSaved(resumable)}>Resume game</button>}

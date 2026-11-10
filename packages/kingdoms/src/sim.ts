@@ -1,16 +1,17 @@
 /**
  * Headless balance simulator. Usage:
  *   npm run sim -w packages/kingdoms -- [games] [--json] [--opt key=value ...]
- * Runs three experiments: all-balanced seat fairness, a mixed table (1 cultivator, 1 reacher,
- * 2 balanced, rotated over every duchy), and cultivators versus reachers head to head.
+ * Runs three experiments: all-balanced seat fairness (duchies rotate through every seat), a mixed
+ * table (1 cultivator, 1 reacher, the rest balanced, rotated over every duchy), and cultivators
+ * versus reachers head to head. `players=6` or `duchyIds=salz,wein,erz` picks the table.
  */
 import { chooseTurn, PROFILES, type BotProfile } from './bots';
-import { buildConfig, type KConfig, type KOptions } from './config';
+import { buildConfig, defaultDuchies, type KConfig, type KOptions } from './config';
 import { apply, createGame, type KState } from './game';
 import { DUCHIES, type DuchyId } from './tiles';
 
 export interface GameResult {
-  winners: number[]; scores: number[]; profiles: string[];
+  winners: number[]; scores: number[]; profiles: string[]; names: string[];
   home: number[]; foreign: number[]; zollIn: number[]; zollOut: number[];
   gapTurn: (number | null)[]; linkTurn: (number | null)[]; swaps: number[]; markt: number[]; foreignPlaced: number[];
   dead: number; placed: number; turns: number;
@@ -42,7 +43,7 @@ export function playGame(cfg: KConfig, seed: number, first: number, bots: BotPro
   }
   const P = s.players;
   return {
-    winners: s.winners ?? [], scores: P.map((p) => p.score), profiles: bots.map((b) => b.name),
+    winners: s.winners ?? [], scores: P.map((p) => p.score), profiles: bots.map((b) => b.name), names: cfg.duchies.map((d) => d.name),
     home: P.map((p) => p.homePts), foreign: P.map((p) => p.foreignPts), zollIn: P.map((p) => p.zollIn), zollOut: P.map((p) => p.zollOut),
     gapTurn: P.map((p) => p.gapClosedTurn), linkTurn: P.map((p) => p.firstLinkTurn), swaps: P.map((p) => p.swaps),
     markt: P.map((p) => p.marktPlaced), foreignPlaced: P.map((p) => p.foreignPlaced),
@@ -58,6 +59,8 @@ export interface Report {
   games: number;
   duchyWin: Record<string, number>;
   duchyScore: Record<string, number>;
+  /** Wins by seat (position at the table), with every duchy rotated through every seat. */
+  seatWin: Record<string, number>;
   profileWinPerSeat: Record<string, number>;
   headToHead: { cultivator: number; reacher: number };
   homeShare: number;
@@ -88,12 +91,13 @@ function credit(res: GameResult[], key: (r: GameResult, i: number) => string) {
 export function runReport(cfg: KConfig, games: number, seed0 = 1): Report {
   const n = cfg.duchies.length;
   const names = cfg.duchies.map((d) => d.name);
-  // 1. Seat fairness: everyone balanced, first player rotates.
+  // 1. Seat fairness: everyone balanced, first player rotates, and the duchies rotate through the seats.
+  const rotated = Array.from({ length: n }, (_, k) => ({ ...cfg, duchies: cfg.duchies.map((_, i) => cfg.duchies[(i + k) % n]) }));
   const fair: GameResult[] = [];
-  for (let g = 0; g < games; g++) fair.push(playGame(cfg, seed0 + g, g % n, Array(n).fill(PROFILES.balanced)));
+  for (let g = 0; g < games; g++) fair.push(playGame(rotated[Math.floor(g / n) % n], seed0 + g, g % n, Array(n).fill(PROFILES.balanced)));
   // 2. Mixed table: each duchy cycles through cultivator, reacher, balanced, balanced.
   const mixed: GameResult[] = [];
-  const pattern = [PROFILES.cultivator, PROFILES.reacher, PROFILES.balanced, PROFILES.balanced];
+  const pattern = [PROFILES.cultivator, PROFILES.reacher, ...Array(Math.max(0, n - 2)).fill(PROFILES.balanced)];
   for (let g = 0; g < games; g++) {
     const shift = g % n;
     mixed.push(playGame(cfg, 100000 + seed0 + g, Math.floor(g / n) % n, cfg.duchies.map((_, i) => pattern[(i + shift) % n])));
@@ -104,7 +108,8 @@ export function runReport(cfg: KConfig, games: number, seed0 = 1): Report {
     const flip = g % 2;
     h2h.push(playGame(cfg, 200000 + seed0 + g, g % n, cfg.duchies.map((_, i) => ((i + flip) % 2 ? PROFILES.reacher : PROFILES.cultivator))));
   }
-  const dw = credit(fair, (_, i) => names[i]);
+  const dw = credit(fair, (r, i) => r.names[i]);
+  const sw = credit(fair, (_, i) => `seat ${i + 1}`);
   const pw = credit(mixed, (r, i) => r.profiles[i]);
   const hw = credit(h2h, (r, i) => r.profiles[i]);
   const all = [...fair, ...mixed];
@@ -117,7 +122,8 @@ export function runReport(cfg: KConfig, games: number, seed0 = 1): Report {
   return {
     games,
     duchyWin: Object.fromEntries(names.map((k) => [k, +pct(dw.wins[k], fair.length).toFixed(1)])),
-    duchyScore: Object.fromEntries(names.map((k, i) => [k, +mean(fair.map((r) => r.scores[i])).toFixed(1)])),
+    duchyScore: Object.fromEntries(names.map((k) => [k, +mean(fair.map((r) => r.scores[r.names.indexOf(k)])).toFixed(1)])),
+    seatWin: Object.fromEntries(Object.keys(sw.wins).map((k) => [k, +pct(sw.wins[k], fair.length).toFixed(1)])),
     profileWinPerSeat: Object.fromEntries(Object.keys(pw.wins).map((k) => [k, +pct(pw.wins[k], pw.seats[k]).toFixed(1)])),
     headToHead: { cultivator: +pct(hw.wins.cultivator ?? 0, h2h.length).toFixed(1), reacher: +pct(hw.wins.reacher ?? 0, h2h.length).toFixed(1) },
     homeShare: +pct(homePts, homePts + forPts).toFixed(1),
@@ -129,7 +135,7 @@ export function runReport(cfg: KConfig, games: number, seed0 = 1): Report {
     swapsPerGame: +mean(fair.map((r) => r.swaps.reduce((a, b) => a + b, 0))).toFixed(1),
     marktPerGame: +mean(fair.map((r) => r.markt.reduce((a, b) => a + b, 0))).toFixed(1),
     zollPerGame: +mean(fair.map((r) => r.zollIn.reduce((a, b) => a + b, 0))).toFixed(1),
-    duchyKinds: Object.fromEntries(names.map((k, i) => [k, Object.fromEntries(['town', 'road', 'monastery', 'meadow'].map((kind) => [kind, +mean(fair.map((r) => r.byKind[i][kind])).toFixed(1)]))])),
+    duchyKinds: Object.fromEntries(names.map((k) => [k, Object.fromEntries(['town', 'road', 'monastery', 'meadow'].map((kind) => [kind, +mean(fair.map((r) => r.byKind[r.names.indexOf(k)][kind])).toFixed(1)]))])),
     avgScore: +mean(fair.flatMap((r) => r.scores)).toFixed(1),
     scoreSpread: +mean(fair.map((r) => Math.max(...r.scores) - Math.min(...r.scores))).toFixed(1),
   };
@@ -150,6 +156,8 @@ function parseOpts(args: string[]): KOptions {
       if (hit) hit.count = Number(v); else list.push({ tileId, count: Number(v) });
       continue;
     }
+    if (k === 'players') { o.duchyIds = defaultDuchies(Number(v)); continue; }
+    if (k === 'duchyIds') { o.duchyIds = v.split(','); continue; }
     const path = k.split('.');
     let t = o as Record<string, unknown>;
     for (const seg of path.slice(0, -1)) t = (t[seg] ??= {}) as Record<string, unknown>;

@@ -1,0 +1,288 @@
+{
+  "3 (Salz, Wein, Forst)": {
+    "games": 300,
+    "duchyWin": {
+      "Salz": 24.8,
+      "Wein": 33.4,
+      "Forst": 41.8
+    },
+    "duchyScore": {
+      "Salz": 50.5,
+      "Wein": 53.4,
+      "Forst": 54.6
+    },
+    "seatWin": {
+      "seat 1": 36.1,
+      "seat 2": 31.9,
+      "seat 3": 31.9
+    },
+    "profileWinPerSeat": {
+      "cultivator": 11.5,
+      "reacher": 38.5,
+      "balanced": 50
+    },
+    "headToHead": {
+      "cultivator": 24,
+      "reacher": 76
+    },
+    "homeShare": 77.4,
+    "deadRate": 0,
+    "gapClosedRate": 99.6,
+    "gapTurnAvg": 3.8,
+    "linkedRate": 80.2,
+    "everyoneLinkedRate": 74,
+    "swapsPerGame": 7.6,
+    "marktPerGame": 15,
+    "zollPerGame": 8.1,
+    "duchyKinds": {
+      "Salz": {
+        "town": 23.4,
+        "road": 10.1,
+        "monastery": 8.7,
+        "meadow": 5.1
+      },
+      "Wein": {
+        "town": 17.5,
+        "road": 13.4,
+        "monastery": 17.8,
+        "meadow": 5.1
+      },
+      "Forst": {
+        "town": 15.8,
+        "road": 21.5,
+        "monastery": 11.8,
+        "meadow": 5.9
+      }
+    },
+    "avgScore": 52.8,
+    "scoreSpread": 17
+  },
+  "4 (Erz, Tuch, Salz, Wein)": {
+    "games": 300,
+    "duchyWin": {
+      "Erz": 28.7,
+      "Tuch": 28.7,
+      "Salz": 22.3,
+      "Wein": 20.3
+    },
+    "duchyScore": {
+      "Erz": 54.3,
+      "Tuch": 55.1,
+      "Salz": 52.2,
+      "Wein": 52.3
+    },
+    "seatWin": {
+      "seat 1": 25.2,
+      "seat 2": 25.5,
+      "seat 3": 23.8,
+      "seat 4": 25.5
+    },
+    "profileWinPerSeat": {
+      "cultivator": 2.5,
+      "reacher": 19.2,
+      "balanced": 39.2
+    },
+    "headToHead": {
+      "cultivator": 15.3,
+      "reacher": 84.7
+    },
+    "homeShare": 64,
+    "deadRate": 0,
+    "gapClosedRate": 99.3,
+    "gapTurnAvg": 3.6,
+    "linkedRate": 95.6,
+    "everyoneLinkedRate": 89.7,
+    "swapsPerGame": 12.1,
+    "marktPerGame": 21.6,
+    "zollPerGame": 12.1,
+    "duchyKinds": {
+      "Erz": {
+        "town": 24.4,
+        "road": 10.8,
+        "monastery": 12.9,
+        "meadow": 6.3
+      },
+      "Tuch": {
+        "town": 28.5,
+        "road": 7.8,
+        "monastery": 12.8,
+        "meadow": 5.3
+      },
+      "Salz": {
+        "town": 25,
+        "road": 8.6,
+        "monastery": 10.1,
+        "meadow": 5.2
+      },
+      "Wein": {
+        "town": 18.4,
+        "road": 11.4,
+        "monastery": 18.6,
+        "meadow": 4.9
+      }
+    },
+    "avgScore": 53.5,
+    "scoreSpread": 24
+  },
+  "5": {
+    "games": 300,
+    "duchyWin": {
+      "Salz": 23.3,
+      "Wein": 19.4,
+      "Forst": 19.4,
+      "Hopfen": 21.3,
+      "Erz": 16.5
+    },
+    "duchyScore": {
+      "Salz": 55,
+      "Wein": 55,
+      "Forst": 54.6,
+      "Hopfen": 55.7,
+      "Erz": 52.5
+    },
+    "seatWin": {
+      "seat 1": 19.2,
+      "seat 2": 20,
+      "seat 3": 16.4,
+      "seat 4": 28.1,
+      "seat 5": 16.3
+    },
+    "profileWinPerSeat": {
+      "cultivator": 0.7,
+      "reacher": 16.8,
+      "balanced": 27.5
+    },
+    "headToHead": {
+      "cultivator": 13,
+      "reacher": 87
+    },
+    "homeShare": 79,
+    "deadRate": 0,
+    "gapClosedRate": 98.8,
+    "gapTurnAvg": 3.8,
+    "linkedRate": 71,
+    "everyoneLinkedRate": 39.3,
+    "swapsPerGame": 21,
+    "marktPerGame": 21.2,
+    "zollPerGame": 16.4,
+    "duchyKinds": {
+      "Salz": {
+        "town": 25.4,
+        "road": 10.1,
+        "monastery": 7.2,
+        "meadow": 7.1
+      },
+      "Wein": {
+        "town": 16.1,
+        "road": 13.5,
+        "monastery": 19,
+        "meadow": 7.2
+      },
+      "Forst": {
+        "town": 14.6,
+        "road": 21.4,
+        "monastery": 12.1,
+        "meadow": 8.4
+      },
+      "Hopfen": {
+        "town": 18.4,
+        "road": 14.8,
+        "monastery": 9.7,
+        "meadow": 9.7
+      },
+      "Erz": {
+        "town": 23.7,
+        "road": 12.2,
+        "monastery": 10.3,
+        "meadow": 6.9
+      }
+    },
+    "avgScore": 54.6,
+    "scoreSpread": 25.8
+  },
+  "6": {
+    "games": 400,
+    "duchyWin": {
+      "Salz": 15.5,
+      "Wein": 16.5,
+      "Forst": 18,
+      "Hopfen": 21,
+      "Erz": 15.5,
+      "Tuch": 13.6
+    },
+    "duchyScore": {
+      "Salz": 57.5,
+      "Wein": 57,
+      "Forst": 58.9,
+      "Hopfen": 59.6,
+      "Erz": 57.5,
+      "Tuch": 56.8
+    },
+    "seatWin": {
+      "seat 1": 17.5,
+      "seat 2": 13.9,
+      "seat 3": 15,
+      "seat 4": 20.6,
+      "seat 5": 14.5,
+      "seat 6": 18.6
+    },
+    "profileWinPerSeat": {
+      "cultivator": 1,
+      "reacher": 12.3,
+      "balanced": 21.7
+    },
+    "headToHead": {
+      "cultivator": 12,
+      "reacher": 88
+    },
+    "homeShare": 69.7,
+    "deadRate": 0,
+    "gapClosedRate": 99.3,
+    "gapTurnAvg": 3.5,
+    "linkedRate": 79.8,
+    "everyoneLinkedRate": 46,
+    "swapsPerGame": 29.5,
+    "marktPerGame": 26.8,
+    "zollPerGame": 22.5,
+    "duchyKinds": {
+      "Salz": {
+        "town": 24.8,
+        "road": 9.6,
+        "monastery": 9.1,
+        "meadow": 9
+      },
+      "Wein": {
+        "town": 17.7,
+        "road": 13.1,
+        "monastery": 18.9,
+        "meadow": 8.2
+      },
+      "Forst": {
+        "town": 15.3,
+        "road": 21.2,
+        "monastery": 14.1,
+        "meadow": 10.9
+      },
+      "Hopfen": {
+        "town": 18.4,
+        "road": 14.8,
+        "monastery": 11.1,
+        "meadow": 11.9
+      },
+      "Erz": {
+        "town": 25.1,
+        "road": 12.5,
+        "monastery": 10.6,
+        "meadow": 9.9
+      },
+      "Tuch": {
+        "town": 26.6,
+        "road": 9.8,
+        "monastery": 11.2,
+        "meadow": 8.1
+      }
+    },
+    "avgScore": 57.9,
+    "scoreSpread": 31.9
+  }
+}

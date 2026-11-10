@@ -67,3 +67,32 @@
   .kingdoms .game-dock .k-nav { display: flex; }
   .k-round-word { display: none; }
 }
+.k-count { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.k-count > span { font-weight: 800; }
+.k-count .seg { background: #eef2f0; }
+.k-count .seg button { min-width: 48px; }
+.k-duchy-head select { font: 800 19px var(--font-display); color: var(--ink); background: transparent; border: 0; border-bottom: 2px dashed var(--line); padding: 0 2px; min-height: 36px; cursor: pointer; }
+
+/* Usability pass (phone, tablet, desktop). */
+.k-duchy-row input { width: 0; }
+.k-duchies > .k-duchy { grid-template-columns: minmax(0, 1fr); }
+.kingdoms .tile-ctl { transform: translateY(-96px); }
+.k-split { white-space: nowrap; }
+.panel.menu .panel-row { flex-wrap: wrap; }
+.panel.menu .panel-row button { white-space: nowrap; flex: 1 1 auto; }
+.curtain-card.rules { position: relative; }
+.k-close { position: sticky; top: 0; float: right; width: 44px; height: 44px; padding: 0; border-radius: 50%; z-index: 2; margin: -4px -4px 0 8px; }
+.kingdoms.many .players { mask-image: linear-gradient(90deg, #000 85%, transparent); -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); }
+@media (pointer: coarse) {
+  .k-nav button, .k-count .seg button, .k-duchy .seg button, .k-claims .claim-opt, .k-duchy-head select, .k-duchy-row input, .panel.menu .toggle, .panel.menu label { min-height: 44px; }
+  .k-compass, .k-undo { width: 44px; min-width: 44px; height: 44px; }
+  .k-duchy .seg button { min-width: 48px; }
+  .k-slider input { height: 44px; }
+}
+@media (max-width: 560px) {
+  .kingdoms.many .player { min-width: 64px; }
+  .kingdoms.many .player .pmeta { display: none; }
+  .kingdoms.many .player .pname em { display: none; }
+}
+.k-actions .k-undo { margin: 0; width: 46px; min-height: 46px; font-size: 20px; }
+.curtain-card > button.k-close { min-width: 44px; width: 44px; height: 44px; min-height: 44px; padding: 0; justify-self: end; }

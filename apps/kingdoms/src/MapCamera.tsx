@@ -159,7 +159,7 @@ export function MapCamera({ tilt, recenter, bounds, home, heading, focus, keepVi
     camera.updateMatrixWorld();
     const fits = (cam: THREE.Camera) => points.every(([x, z]) => {
       const v = new THREE.Vector3(x, 0, z).project(cam);
-      return Math.abs(v.x) < 0.86 && v.y < 0.68 && v.y > -0.5 && v.z < 1;
+      return Math.abs(v.x) < 0.86 && v.y < 0.6 && v.y > -0.35 && v.z < 1;
     });
     if (fits(camera)) return;
     let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;

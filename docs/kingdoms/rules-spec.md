@@ -15,7 +15,7 @@ Every number below is a setting in `packages/kingdoms/src/config.ts` or a deck l
 | Start tile | **Stammburg**, one per duchy |
 | Centre | **Marktburg** (a four-sided Burg), inside the **Markt** |
 
-## The four duchies
+## The duchies
 
 | Duchy | Seat | Theme | Deck leans toward | Markt pile (complementary tiles) | Power |
 | --- | --- | --- | --- | --- | --- |
@@ -23,6 +23,10 @@ Every number below is a setting in `packages/kingdoms/src/config.ts` or a deck l
 | **Wein** | East | Monks and contemplation | Most Stifte | Stifte with a road exit, plus a junction | **Besinnung:** sees the top two tiles of its home deck and may take either; the other stays on top. |
 | **Forst** | South | Traveller variety | Waymarked roads (+1 each), no junctions | Junctions, Burg walls at a junction, Burg corners with road | **Waldläufer:** may swap twice per turn. |
 | **Hopfen** | West | Rural peace and freedom | Small Burgs by open fields | Field gates: Burg corners and walls with roads | **Landfrieden:** pays no Zoll. |
+| **Erz** | (5 or 6 players) | Miners and smiths | Burg walls, corners and squares with plenty of roads | Banner Burgs, a Burg centre, a Stift by the Burg | **Bergleute:** starts with 10 Wanderers instead of 7. |
+| **Tuch** | (6 players) | Weavers and dyers | Banner Burg streets, Burg squares and four Stifte | Banner Burg streets, corners, a square and a gate | **Tuchhandel:** may swap before closing its gap. |
+
+The seats in the table above are for the standard four-player game. Any 2 to 6 different duchies can play; see **Table sizes**.
 
 Players rule one duchy each. Version 0.1 is for four players; three or two players leave a duchy empty, which the engine supports but the simulator has not tuned yet.
 
@@ -49,6 +53,25 @@ North is up. The Marktburg, a four-sided Burg with a banner, sits at the centre 
 - **Vorland:** the three rings just outside the Markt. Each duchy's Vorland is a preplaced T of five tiles, shaped 1-1-3: one tile facing the Markt, one behind it, and a crossbar of three facing home.
 - **Stammland:** everything further out. The Stammburg sits 2 empty cells beyond the middle of the crossbar (the **gap**).
 - The Markt holds only Markt tiles. Stammland never holds Markt tiles.
+
+## Table sizes
+
+Two to six duchies can play. What has to stay true at every size:
+
+- **Every duchy gets the same shape of land:** the same Vorland T, the same two-cell gap and the same distance from its Stammburg to the Markt along its own spine. Only which side of the Markt it faces changes.
+- **Every Vorland touches the Markt,** so every duchy can link to every other through it.
+- **Land is split fairly:** each cell belongs to the duchy whose spine (the line from the Markt out to its Stammburg) is nearest. Cells exactly between two spines go to the duchy they lie clockwise of.
+- **Rounds do not depend on the table:** a duchy always has 17 home tiles after setup, so the game is 17 rounds at any size. Bigger tables simply take longer.
+
+| Duchies | Markt | Seats |
+| --- | --- | --- |
+| 2 | 3 × 3 | North and south |
+| 3 | 3 × 3 | North, east and west (the empty south is split by the east and west duchies) |
+| 4 | 3 × 3 | One on each side |
+| 5 | 5 × 3 | Two on the north side, one each on east, south and west |
+| 6 | 5 × 3 | Two on the north side, two on the south side, one each on east and west |
+
+On the wide Markt the two duchies sharing a side sit two cells either side of the centre, so their crossbars are one cell apart and the land between them is split down the middle. (Three cells apart, on a 7 × 3 Markt, made linking much rarer: all six linked in only 24% of games.)
 
 ## Decks
 

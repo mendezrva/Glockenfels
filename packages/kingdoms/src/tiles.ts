@@ -51,7 +51,7 @@ export const K_TILES: Record<string, KTileDef> = Object.fromEntries([
   t('burg-centre', 'Burg centre with maypole', ['town', 'town', 'town', 'town'], 'maypole', { banner: 1 }),
 ].map((d) => [d.id, d]));
 
-export type DuchyId = 'salz' | 'wein' | 'forst' | 'hopfen';
+export type DuchyId = 'salz' | 'wein' | 'forst' | 'hopfen' | 'erz' | 'tuch';
 
 export interface DuchyDef {
   id: DuchyId;
@@ -64,7 +64,7 @@ export interface DuchyDef {
   markt: DeckEntry[];
 }
 
-/** Seat order on the board: north, east, south, west. */
+/** Every duchy. A game seats 2 to 6 of them; the first four are the default table. */
 export const DUCHIES: DuchyDef[] = [
   {
     id: 'salz', name: 'Salz', theme: 'Urban density', colour: '#2f74c0',
@@ -125,6 +125,34 @@ export const DUCHIES: DuchyDef[] = [
     markt: [
       { tileId: 'burg-corner-road', count: 2 }, { tileId: 'burg-edge-road', count: 1 },
       { tileId: 'burg-street-banner', count: 1 }, { tileId: 'burg-gate', count: 1 }, { tileId: 'burg-edge-bend', count: 1 },
+    ],
+  },
+  {
+    id: 'erz', name: 'Erz', theme: 'Miners and smiths', colour: '#8a52c4',
+    power: 'Bergleute: starts with three extra Wanderers.',
+    home: [
+      { tileId: 'burg-corner', count: 2 }, { tileId: 'burg-edge', count: 3 }, { tileId: 'burg-edge-road', count: 3 },
+      { tileId: 'burg-square', count: 2 }, { tileId: 'burg-corner-road', count: 2 }, { tileId: 'burg-street', count: 1 },
+      { tileId: 'road', count: 3 }, { tileId: 'road-bend', count: 3 }, { tileId: 'junction', count: 1 },
+      { tileId: 'stift', count: 2 },
+    ],
+    markt: [
+      { tileId: 'burg-centre', count: 1 }, { tileId: 'burg-corner-banner', count: 2 }, { tileId: 'burg-gate-banner', count: 1 },
+      { tileId: 'burg-square-banner', count: 1 }, { tileId: 'stift-gate', count: 1 },
+    ],
+  },
+  {
+    id: 'tuch', name: 'Tuch', theme: 'Weavers and dyers', colour: '#e27fb0',
+    power: 'Tuchhandel: may swap before closing its gap.',
+    home: [
+      { tileId: 'burg-edge', count: 3 }, { tileId: 'burg-edge-road', count: 2 }, { tileId: 'burg-corner', count: 2 },
+      { tileId: 'burg-street-banner', count: 2 }, { tileId: 'burg-square', count: 2 },
+      { tileId: 'road', count: 3 }, { tileId: 'road-bend', count: 3 }, { tileId: 'junction', count: 1 },
+      { tileId: 'stift', count: 2 }, { tileId: 'stift-lane', count: 2 },
+    ],
+    markt: [
+      { tileId: 'burg-street-banner', count: 2 }, { tileId: 'burg-corner-banner', count: 2 },
+      { tileId: 'burg-square-banner', count: 1 }, { tileId: 'burg-gate-banner', count: 1 },
     ],
   },
 ];

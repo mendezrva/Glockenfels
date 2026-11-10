@@ -11,8 +11,10 @@ export interface KConfig {
   rounds: number;
   /** Empty cells between a duchy's Stammburg and its Vorland. */
   gap: number;
-  /** Half-width of the square Markt zone around the Marktburg (2 means a 5 × 5 Markt). */
+  /** Half-height of the Markt around the Marktburg (1 means 3 cells deep; five or six players widen it by pairSpread on each side). */
   marktRadius: number;
+  /** With five or six duchies, how far beyond the Markt's half-height the two duchies sharing a side sit from the centre (and how much wider the Markt gets). */
+  pairSpread: number;
   /** Width of the Vorland band outside the Markt, in rings. */
   vorlandDepth: number;
   scoring: {
@@ -30,6 +32,10 @@ export interface KConfig {
     weinMode: 'choose' | 'bury';
     forstSwaps: number;
     hopfenPaysZoll: boolean;
+    /** Wanderers Erz starts with. */
+    erzWanderers: number;
+    /** Tuch may swap before closing its gap. */
+    tuchEarlySwap: boolean;
   };
   swapsPerTurn: number;
   /** Who you may swap with: any duchy, or only duchies in your Markt league. */
@@ -44,6 +50,8 @@ export interface KConfig {
 export interface KOptions extends Partial<Omit<KConfig, 'scoring' | 'powers' | 'duchies'>> {
   scoring?: Partial<KConfig['scoring']>;
   powers?: Partial<KConfig['powers']>;
+  /** Which duchies play, in seat order (2 to 6). Defaults to Salz, Wein, Forst and Hopfen. */
+  duchyIds?: DuchyDef['id'][];
   /** Replace a duchy's home deck or Markt pile. */
   decks?: Partial<Record<DuchyDef['id'], { home?: DeckEntry[]; markt?: DeckEntry[] }>>;
 }
@@ -54,6 +62,7 @@ export const DEFAULT_CONFIG: KConfig = {
   gap: 2,
   marktRadius: 1,
   vorlandDepth: 3,
+  pairSpread: 1,
   scoring: {
     burgPerTile: 2, burgPerBanner: 2, burgIncompletePerTile: 1, burgIncompletePerBanner: 1,
     roadPerTile: 1, roadPerBadge: 1,
@@ -61,21 +70,30 @@ export const DEFAULT_CONFIG: KConfig = {
     fieldPerBurg: 3,
   },
   zoll: 1,
-  powers: { salzZollFactor: 2, weinPeek: 2, weinMode: 'choose', forstSwaps: 2, hopfenPaysZoll: false },
+  powers: { salzZollFactor: 2, weinPeek: 2, weinMode: 'choose', forstSwaps: 2, hopfenPaysZoll: false, erzWanderers: 10, tuchEarlySwap: true },
   swapsPerTurn: 1,
   marktPile: 6,
   swapTargets: 'any',
   swapGivesTo: 'bottom',
-  duchies: DUCHIES,
+  duchies: DUCHIES.slice(0, 4),
 };
 
+/** The default table for each player count. */
+export const defaultDuchies = (n: number): DuchyDef['id'][] => DUCHIES.slice(0, Math.max(2, Math.min(6, n))).map((d) => d.id);
+
 export function buildConfig(o: KOptions = {}): KConfig {
-  const { scoring, powers, decks, ...rest } = o;
+  const { scoring, powers, decks, duchyIds, ...rest } = o;
+  const picked = (duchyIds ?? DEFAULT_CONFIG.duchies.map((d) => d.id)).map((id) => {
+    const d = DUCHIES.find((x) => x.id === id);
+    if (!d) throw new Error(`Unknown duchy ${id}`);
+    return d;
+  });
+  if (picked.length < 2 || picked.length > 6 || new Set(picked).size !== picked.length) throw new Error('Pick 2 to 6 different duchies');
   return {
     ...DEFAULT_CONFIG,
     ...rest,
     scoring: { ...DEFAULT_CONFIG.scoring, ...scoring },
     powers: { ...DEFAULT_CONFIG.powers, ...powers },
-    duchies: DEFAULT_CONFIG.duchies.map((d) => ({ ...d, home: decks?.[d.id]?.home ?? d.home, markt: decks?.[d.id]?.markt ?? d.markt })),
+    duchies: picked.map((d) => ({ ...d, home: decks?.[d.id]?.home ?? d.home, markt: decks?.[d.id]?.markt ?? d.markt })),
   };
 }

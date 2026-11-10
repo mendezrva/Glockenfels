@@ -168,3 +168,39 @@ describe('full games', () => {
     expect(keyOf(0, 0) in s.board).toBe(true);
   });
 });
+
+describe('table sizes', () => {
+  for (const n of [2, 3, 5, 6]) {
+    it(`sets up and plays a ${n}-duchy game`, () => {
+      const c = buildConfig({ duchyIds: DUCHIES.slice(0, n).map((d) => d.id) });
+      const s = createGame(c, 900 + n, 0);
+      expect(s.players.length).toBe(n);
+      for (let p = 0; p < n; p++) {
+        const L = layout(c, p);
+        expect(sectorOf(c, ...L.home)).toBe(p);
+        for (const [x, z] of L.vorland) {
+          expect(tileAt(s, x, z)?.style, `duchy ${p}`).toBe(p);
+          expect(sectorOf(c, x, z)).toBe(p);
+          expect(zoneOf(c, x, z)).toBe('vorland');
+        }
+        for (const [x, z] of L.gapCells) { expect(tileAt(s, x, z)).toBeUndefined(); expect(sectorOf(c, x, z)).toBe(p); }
+      }
+      if (c.duchies.some((d) => d.id === 'erz')) expect(s.players[4].wanderers).toBe(c.powers.erzWanderers);
+      const r = playGame(c, 900 + n, 0, Array(n).fill(PROFILES.balanced));
+      expect(r.winners.length).toBeGreaterThan(0);
+      r.scores.forEach((sc, i) => expect(sc).toBe(r.home[i] + r.foreign[i] + r.zollIn[i] - r.zollOut[i]));
+    });
+  }
+  it('lets Tuch swap before closing its gap', () => {
+    const c = buildConfig({ duchyIds: ['salz', 'tuch', 'wein'] });
+    const s = createGame(c, 31, 1);
+    expect(s.gapClosed[1]).toBe(false);
+    s.players[1].score = 5;
+    expect(resolve(s, 1, { kind: 'home', depth: 0 }, [0])).not.toBeNull();
+    expect(resolve(s, 2, { kind: 'home', depth: 0 }, [0])).toBeNull();
+  });
+  it('rejects bad tables', () => {
+    expect(() => buildConfig({ duchyIds: ['salz'] })).toThrow();
+    expect(() => buildConfig({ duchyIds: ['salz', 'salz'] })).toThrow();
+  });
+});

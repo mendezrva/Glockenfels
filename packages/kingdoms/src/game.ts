@@ -234,6 +234,9 @@ export function zollReceived(s: KState, p: number, q: number): number {
   return s.cfg.duchies[q].id === 'salz' ? Math.max(base, s.cfg.zoll) * s.cfg.powers.salzZollFactor : base;
 }
 
+/** Swapping is the reward for connecting: your own gap must be closed (Tuch may swap from the start). */
+export const canSwap = (s: KState, p: number) => s.gapClosed[p] || (s.cfg.duchies[p].id === 'tuch' && s.cfg.powers.tuchEarlySwap);
+
 export function swapsAllowed(s: KState, p: number) {
   return s.cfg.duchies[p].id === 'forst' ? s.cfg.powers.forstSwaps : s.cfg.swapsPerTurn;
 }
@@ -257,8 +260,7 @@ export function resolve(s: KState, p: number, source: Source, swaps: number[]): 
   }
   if (!tileId) return null;
   if (swaps.length) {
-    // Swapping is the reward for connecting: your own gap must be closed.
-    if (source.kind === 'markt' || swaps.length > swapsAllowed(s, p) || !s.gapClosed[p]) return null;
+    if (source.kind === 'markt' || swaps.length > swapsAllowed(s, p) || !canSwap(s, p)) return null;
     const decks = new Map<number, string[]>();
     let paid = 0;
     const zoll: Candidate['zoll'] = [];
@@ -296,7 +298,7 @@ export function candidates(s: KState, p = current(s)): Candidate[] {
     if (b.kind !== 'markt' && max > 0) {
       for (const q of others) seqs.push([q]);
       if (max > 1) for (const q of others) for (const r of others) seqs.push([q, r]);
-    if (!s.gapClosed[p]) seqs.length = 1;
+    if (!canSwap(s, p)) seqs.length = 1;
     }
     for (const sw of seqs) {
       const c = resolve(s, p, b, sw);
@@ -473,7 +475,7 @@ export function createGame(cfg: KConfig, seed: number, first = 0): KState {
     board: {}, features: [], parent: [],
     decks: [], markt: [], reserve: Array(n).fill(null),
     players: cfg.duchies.map((_, i) => ({
-      duchy: i, score: 0, wanderers: cfg.wanderers, byKind: { road: 0, town: 0, monastery: 0, meadow: 0 }, homePts: 0, foreignPts: 0, zollIn: 0, zollOut: 0,
+      duchy: i, score: 0, wanderers: cfg.duchies[i].id === 'erz' ? cfg.powers.erzWanderers : cfg.wanderers, byKind: { road: 0, town: 0, monastery: 0, meadow: 0 }, homePts: 0, foreignPts: 0, zollIn: 0, zollOut: 0,
       swaps: 0, marktPlaced: 0, foreignPlaced: 0, gapClosedTurn: null, firstLinkTurn: null,
     })),
     order: Array.from({ length: n }, (_, i) => (first + i) % n),

@@ -4,6 +4,23 @@ Run it yourself: `npm run sim -w packages/kingdoms -- 400` (add `--json`, or ove
 
 **v0.2 board (2026-11-10):** the centre is a four-sided Burg (the Marktburg), each Vorland is a 1-1-3 T (one tile facing the Markt, one behind, a crossbar of three facing home, two empty cells before the Stammburg), and the game lasts 17 rounds, one per home tile left after setup. The new board pushed Forst down to 13.5% and Wein up to 36%, so Forst's deck got more waymarked roads and a second Stift, its Markt pile swapped crossroads for Burg-edged tiles that can sit next to the Marktburg, and Wein lost one Stift with lane.
 
+## Table sizes (v0.3)
+
+Two to six duchies can now play (see the rules spec). Erz and Tuch were added so six can play. Raw numbers are in `balance-v0.3-tables.json`; run `npm run sim -w packages/kingdoms -- 300 players=6` or `duchyIds=erz,tuch,salz,wein`. Duchies rotate through every seat, so seat and duchy results are separate.
+
+| Table | Seats (wins per seat) | Duchies (wins) | Home points | All linked |
+| --- | --- | --- | --- | --- |
+| 3: Salz, Wein, Forst (300 games) | 36, 32, 32% (fair 33) | Salz 25, Wein 33, Forst 42% | 77% | 74% |
+| 4: Erz, Tuch, Salz, Wein (300) | 25, 26, 24, 26% (fair 25) | Erz 29, Tuch 29, Salz 22, Wein 20% | 64% | 90% |
+| 5: first five (300) | 19, 20, 16, **28**, 16% (fair 20) | 17 to 23% | 79% | 39% |
+| 6: all six (400) | 14 to 21% (fair 17) | Tuch 14 to Hopfen 21% | 70% | 46% |
+
+What this shows:
+- **The board layouts are fair** at 3, 4 and 6. At 5 the lone south seat wins too often (28%): it faces the wide side of the Markt on its own.
+- **Duchy powers scale with the table.** Salz's Zoll needs many swappers, so Salz is weak at small tables; Forst's double swap is strongest with few rivals. Erz and Tuch were tuned at six and are a little strong at four.
+- **Wide tables link less.** With six, everyone links in 46% of games (four players: 66 to 74%). A 7 × 3 Markt was worse (24%), so the default wide Markt is 5 × 3.
+- Next tuning steps: a 5-player seat layout for the south seat, and per-table-size power values (for example Salz's Zoll factor) if the small-table numbers matter.
+
 ## How it was measured
 
 - **Bots.** Every bot scores each full turn (pile, swap, spot, Wanderer) with the same point estimates, then adds a style bias:

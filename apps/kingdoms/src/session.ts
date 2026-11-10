@@ -1,9 +1,14 @@
 /** Local game state for Tiny Kingdoms: the engine state, the seat list, saving and undo. */
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { apply, buildConfig, createGame, replay, type KAction, type KEvent, type KState } from '@glockenfels/kingdoms';
+import { apply, buildConfig, createGame, replay, type DuchyId, type KAction, type KEvent, type KState } from '@glockenfels/kingdoms';
+import { setTable } from './colors';
 
 export interface Seat { name: string; bot: boolean }
-export interface SavedKingdoms { v: 1; seed: number; first: number; seats: Seat[]; log: KAction[] }
+export interface SavedKingdoms {
+  v: 1; seed: number; first: number; seats: Seat[]; log: KAction[];
+  /** Duchies in seat order; older saves are the original four. */
+  duchies?: DuchyId[];
+}
 
 const SAVE_KEY = 'glockenfels.kingdoms.save.v1';
 
@@ -21,7 +26,8 @@ export function writeSave(s: SavedKingdoms | null) {
 export interface Batch { n: number; events: KEvent[]; player: number }
 
 export function useKingdoms(saved: SavedKingdoms) {
-  const cfg = useMemo(() => buildConfig(), []);
+  const cfg = useMemo(() => buildConfig({ duchyIds: saved.duchies }), []); // eslint-disable-line react-hooks/exhaustive-deps
+  setTable(cfg.duchies);
   const ref = useRef<KState | null>(null);
   if (!ref.current) ref.current = replay(cfg, saved.seed, saved.first, saved.log);
   const [version, setVersion] = useState(0);
@@ -39,7 +45,8 @@ export function useKingdoms(saved: SavedKingdoms) {
     }
     setBatch({ n: Date.now(), events: s.events.slice(), player });
     setVersion((v) => v + 1);
-    writeSave({ ...saved, log: s.log.slice() });
+    // A finished game is not offered for resuming.
+    writeSave(s.ended ? null : { ...saved, log: s.log.slice() });
   }, [saved]);
 
   /** Takes back the last human move (and any bot moves after it). */
