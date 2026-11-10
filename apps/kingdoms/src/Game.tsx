@@ -69,6 +69,7 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
   const [focus, setFocus] = useState<{ x: number; z: number; n: number } | null>(null);
   const [menu, setMenu] = useState(false);
   const [help, setHelp] = useState(false);
+  const [quests, setQuests] = useState(false);
   const [terrain, setTerrain] = useState(true);
   const onDecline = useCallback(() => setQuality((q) => declineQuality(q).q), []);
 
@@ -242,6 +243,7 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
           if (e.complete) { setBounce({ keys: e.tiles, n: Date.now() }); if (e.kind === 'town' && !reducedMotion) setParty({ x: cx, z: cz, n: Date.now() }); }
           break;
         }
+        case 'quest': { const qd = s.cfg.duchies[e.player].quests[e.quest]; toast(`${nameOf(e.player)} completed ${qd.title}: +${e.points}`); const hk = layout(s.cfg, e.player).home; add.push({ id: ++fx.current, x: hk[0] * TILE, z: hk[1] * TILE, player: pieceSlot(e.player), big: true, text: `+${e.points}`, sub: `${qd.title} · ${nameOf(e.player)}` }); break; }
         case 'gapClosed': toast(`${nameOf(e.player)} (${s.cfg.duchies[e.player].name}) closed the gap. Their Markt pile is open`); break;
         case 'linked': toast(`Markt league: ${e.players.map((q) => s.cfg.duchies[q].name).join(' and ')} are linked${s.cfg.pactFee ? `. ${nameOf(batch.player)} paid ${s.cfg.pactFee} for the pact` : ''}`); break;
         case 'swap': toast(`${nameOf(e.player)} swapped with ${s.cfg.duchies[e.with].name}${e.zoll ? ` and paid ${e.zoll} Zoll` : ''}`); break;
@@ -409,12 +411,14 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
                 <span className="pieces"><i style={{ background: duchyCss(i) }} />{pl.wanderers}</span>
                 <span title={s.gapClosed[i] ? 'Gap closed' : 'Gap open'}>{s.gapClosed[i] ? '⛓ open' : '◌ gap'}</span>
                 <span title="Home tiles left">▦{s.decks[i].length}</span>
+                <span className="k-qdots" title="Side quests">{pl.quests.map((d, k) => <i key={k} className={d ? 'on' : ''} />)}</span>
               </span>
             </div>
           ))}
         </div>
         <div className="top-right">
           <span className="chip" title="Round"><span className="k-round-word">Round&nbsp;</span>{Math.max(1, round)}/{rounds}</span>
+          <button type="button" className="icon k-qbtn" aria-label="Side quests" onClick={() => setQuests(true)}>✦</button>
           <button type="button" className="icon" aria-label="How to play" onClick={() => setHelp(true)}>?</button>
           <button type="button" className="icon" aria-expanded={menu} aria-label="Menu" onClick={() => setMenu(!menu)}>☰</button>
         </div>
@@ -469,6 +473,7 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
       )}
 
       {help && <HelpCard onClose={() => setHelp(false)} s={s} />}
+      {quests && <QuestCard onClose={() => setQuests(false)} s={s} me={isHuman ? p : seats.findIndex((x) => !x.bot)} nameOf={nameOf} />}
 
       {showEnd && s.ended && (
         <div className="curtain soft">
@@ -480,7 +485,7 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
                   <span className="rank">{s.winners?.includes(pl.i) ? '👑' : i + 1}</span>
                   <span className="dot" />
                   <span className="pname">{nameOf(pl.i)} <em>{s.cfg.duchies[pl.i].name}</em></span>
-                  <small className="k-split">home {pl.homePts}{pl.forfeited ? ` (${pl.forfeited} not confirmed)` : ''} · contested {pl.foreignPts} · Zoll +{pl.zollIn}{pl.zollOut ? ` · fees −${pl.zollOut}` : ''}</small>
+                  <small className="k-split">home {pl.homePts}{pl.forfeited ? ` (${pl.forfeited} not confirmed)` : ''} · contested {pl.foreignPts} · quests +{pl.questPts} · Zoll +{pl.zollIn}{pl.zollOut ? ` · fees −${pl.zollOut}` : ''}</small>
                   <b>{pl.score}</b>
                 </li>
               ))}
@@ -494,6 +499,40 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function QuestCard({ onClose, s, me, nameOf }: { onClose: () => void; s: KState; me: number; nameOf: (p: number) => string }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+  const order = s.players.map((_, i) => i).sort((a, b) => (a === me ? -1 : b === me ? 1 : a - b));
+  return (
+    <div className="curtain soft" onClick={onClose}>
+      <div className="curtain-card rules k-questcard" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="k-close" aria-label="Close" onClick={onClose}>✕</button>
+        <h2>Side quests</h2>
+        <p className="k-lore">Three optional cards for each line, from its story. A card pays once, the moment it is met.</p>
+        {order.map((i) => {
+          const d = s.cfg.duchies[i];
+          return (
+            <section key={d.id} className="k-questline" style={{ '--pc': duchyCss(i) } as React.CSSProperties}>
+              <h3><span className="dot" /> {nameOf(i)} <em>{d.name}</em></h3>
+              <ul className="k-quests">
+                {d.quests.map((qd, k) => (
+                  <li key={qd.id} className={s.players[i].quests[k] ? 'done' : ''}>
+                    <b>{s.players[i].quests[k] ? '✓ ' : ''}{qd.title}</b> <span>{qd.text}</span> <em>{s.cfg.questPoints[k]}</em>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          );
+        })}
+        <button type="button" className="primary" onClick={onClose}>Close</button>
+      </div>
     </div>
   );
 }
@@ -516,11 +555,12 @@ function HelpCard({ onClose, s }: { onClose: () => void; s: KState }) {
           <li><b>Link through the Markt.</b> <span>Markt tiles join Vorlands. Linked duchies build on each other's Vorland and share Markt piles. Links chain into one league.{s.cfg.pactFee ? ` Whoever lays the linking tile pays ${s.cfg.pactFee} for each new pact.` : ''}{s.cfg.marktFee ? ` Drawing from another line's Markt pile costs ${s.cfg.marktFee} Zoll, paid to that line.` : ''}</span></li>
           <li><b>Swap.</b> <span>Trade your tile for another duchy's top tile, then play it on your land or theirs.{s.cfg.swapFee ? ` Pay ${s.cfg.swapFee} if that duchy has closed its gap.` : ''}</span></li>
           <li><b>Score.</b> <span>Burg 2 a tile (+2 a banner), road 1 a tile (+1 a waymark), Stift {s.cfg.scoring.stiftComplete}, fields {s.cfg.scoring.fieldPerBurg} for each finished Burg.{s.cfg.scoring.residenzPerTile ? ` Burgs and roads earn ${s.cfg.scoring.residenzPerTile} more for each of their tiles in the Markt.` : ''} {s.cfg.rounds} rounds.</span></li>
+          {s.cfg.questPoints.length > 0 && <li><b>Side quests.</b> <span>Each line carries three optional cards from its story, worth {s.cfg.questPoints.join(', ')} points. They pay the moment they are met. Press ✦ to see them.</span></li>}
           {s.cfg.zoll > 0 && <li><b>Zoll.</b> <span>A road that joins two or more Burgs earns {s.cfg.zoll} Zoll{s.cfg.zollMode === 'perBurg' ? ' for each Burg' : ''} on top of its points. A road joins a Burg when it shares a tile with it.</span></li>}
           {s.cfg.awardRatio > 0 && <li><b>The award.</b> <span>Points from your own portion count only up to your contested points (the Markt and other lines' land){s.cfg.awardRatio !== 1 ? ` times ${s.cfg.awardRatio}` : ''}{s.cfg.awardAllowance ? `, plus ${s.cfg.awardAllowance}` : ''}. The rest is struck off at the end.</span></li>}
         </ul>
         <ul>
-          {s.cfg.duchies.map((d, i) => <li key={d.id} style={{ '--pc': duchyCss(i) } as React.CSSProperties}><b><span className="dot" /> {d.name}</b> <span>{d.theme}. {d.power}</span></li>)}
+          {s.cfg.duchies.map((d, i) => <li key={d.id} style={{ '--pc': duchyCss(i) } as React.CSSProperties}><b><span className="dot" /> {d.name}</b> <span>{d.story}</span></li>)}
         </ul>
         <button type="button" className="primary" onClick={onClose}>Close</button>
       </div>

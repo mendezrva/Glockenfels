@@ -9,6 +9,7 @@ import { chooseTurn, PROFILES, type BotProfile } from './bots';
 import { buildConfig, defaultDuchies, type KConfig, type KOptions } from './config';
 import { apply, createGame, type KState } from './game';
 import { DUCHIES, type DuchyId } from './tiles';
+import type { QuestDef } from './quests';
 
 export interface GameResult {
   winners: number[]; scores: number[]; profiles: string[]; names: string[];
@@ -16,6 +17,7 @@ export interface GameResult {
   gapTurn: (number | null)[]; linkTurn: (number | null)[]; swaps: number[]; markt: number[]; foreignPlaced: number[];
   dead: number; placed: number; turns: number;
   byKind: Record<string, number>[];
+  quests: boolean[][]; questPts: number[];
 }
 
 function rng(seed: number) {
@@ -48,6 +50,7 @@ export function playGame(cfg: KConfig, seed: number, first: number, bots: BotPro
     gapTurn: P.map((p) => p.gapClosedTurn), linkTurn: P.map((p) => p.firstLinkTurn), swaps: P.map((p) => p.swaps),
     markt: P.map((p) => p.marktPlaced), foreignPlaced: P.map((p) => p.foreignPlaced),
     byKind: P.map((p) => ({ ...p.byKind })),
+    quests: P.map((p) => p.quests.slice()), questPts: P.map((p) => p.questPts),
     dead: s.dead, placed: Object.keys(s.board).length - before, turns,
   };
 }
@@ -77,6 +80,9 @@ export interface Report {
   swapsPerGame: number;
   marktPerGame: number;
   zollPerGame: number;
+  /** Share of games each line completes each of its quests (low, medium, high) and its average quest points. */
+  questRate: Record<string, number[]>;
+  questPtsPerLine: Record<string, number>;
   avgScore: number;
   duchyKinds: Record<string, Record<string, number>>;
   scoreSpread: number;
@@ -143,6 +149,8 @@ export function runReport(cfg: KConfig, games: number, seed0 = 1): Report {
     swapsPerGame: +mean(fair.map((r) => r.swaps.reduce((a, b) => a + b, 0))).toFixed(1),
     marktPerGame: +mean(fair.map((r) => r.markt.reduce((a, b) => a + b, 0))).toFixed(1),
     zollPerGame: +mean(fair.map((r) => r.zollIn.reduce((a, b) => a + b, 0))).toFixed(1),
+    questRate: Object.fromEntries(names.map((k) => [k, [0, 1, 2].map((i) => +pct(fair.filter((r) => r.quests[r.names.indexOf(k)][i]).length, fair.length).toFixed(1))])),
+    questPtsPerLine: Object.fromEntries(names.map((k) => [k, +mean(fair.map((r) => r.questPts[r.names.indexOf(k)])).toFixed(1)])),
     duchyKinds: Object.fromEntries(names.map((k) => [k, Object.fromEntries(['town', 'road', 'monastery', 'meadow'].map((kind) => [kind, +mean(fair.map((r) => r.byKind[r.names.indexOf(k)][kind])).toFixed(1)]))])),
     avgScore: +mean(fair.flatMap((r) => r.scores)).toFixed(1),
     scoreSpread: +mean(fair.map((r) => Math.max(...r.scores) - Math.min(...r.scores))).toFixed(1),
@@ -162,6 +170,14 @@ function parseOpts(args: string[]): KOptions {
       const list = (entry[which] ??= base[which].map((e) => ({ ...e })));
       const hit = list.find((e) => e.tileId === tileId);
       if (hit) hit.count = Number(v); else list.push({ tileId, count: Number(v) });
+      continue;
+    }
+    if (k.startsWith('quest.')) {
+      // quest.<duchy>.<0|1|2>=<kind>:<n>
+      const [, duchy, idx] = k.split('.') as [string, DuchyId, string];
+      const [kind, n] = v.split(':');
+      const qs = (o.quests ??= {}) as NonNullable<KOptions['quests']>;
+      (qs[duchy] ??= {})[Number(idx)] = { id: `${duchy}-${Number(idx) + 1}`, title: kind, text: `${kind} ${n ?? 1}`, kind: kind as QuestDef['kind'], n: Number(n ?? 1) };
       continue;
     }
     if (k === 'players') { o.duchyIds = defaultDuchies(Number(v)); continue; }

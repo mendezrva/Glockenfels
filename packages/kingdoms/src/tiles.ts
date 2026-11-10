@@ -5,6 +5,7 @@
  * is identity, never points.
  */
 import type { TileDef } from '@glockenfels/engine';
+import type { QuestDef } from './quests';
 
 export interface KTileDef extends TileDef {
   /** Road badges (waymarks) score +1 each on the road they sit on. */
@@ -57,7 +58,10 @@ export interface DuchyDef {
   id: DuchyId;
   name: string;
   theme: string;
-  power: string;
+  /** One line of the line's story, shown on its card. */
+  story: string;
+  /** Three side quests: low, medium, high. */
+  quests: QuestDef[];
   /** Colour used by the client for Wanderers, banners and field style. */
   colour: string;
   home: DeckEntry[];
@@ -65,95 +69,81 @@ export interface DuchyDef {
 }
 
 /** Every duchy. A game seats 2 to 6 of them; the first four are the default table. */
+/** Every line draws from the same home deck (22 tiles) and the same Markt list (repeated to fill the pile). */
+export const HOME_DECK: DeckEntry[] = [
+  { tileId: 'burg-square', count: 2 }, { tileId: 'burg-gate', count: 1 },
+  { tileId: 'burg-corner', count: 2 }, { tileId: 'burg-corner-road', count: 1 }, { tileId: 'burg-street', count: 1 },
+  { tileId: 'burg-edge', count: 3 }, { tileId: 'burg-edge-road', count: 2 }, { tileId: 'burg-edge-bend', count: 1 },
+  { tileId: 'road', count: 3 }, { tileId: 'road-bend', count: 3 }, { tileId: 'junction', count: 1 },
+  { tileId: 'stift', count: 1 }, { tileId: 'field', count: 1 },
+];
+export const MARKT_LIST: DeckEntry[] = [
+  { tileId: 'burg-corner-banner', count: 1 }, { tileId: 'burg-cap-banner', count: 1 }, { tileId: 'burg-edge-junction', count: 1 },
+  { tileId: 'stift-gate', count: 1 }, { tileId: 'junction', count: 1 }, { tileId: 'burg-corner-road', count: 1 },
+];
+
+const q = (id: string, title: string, text: string, kind: QuestDef['kind'], n = 1): QuestDef => ({ id, title, text, kind, n });
+
 export const DUCHIES: DuchyDef[] = [
   {
     id: 'salz', name: 'Salz', theme: 'Urban density', colour: '#2f74c0',
-    power: 'Deck: the most big Burg pieces.',
-    home: [
-      { tileId: 'burg-square', count: 2 }, { tileId: 'burg-square-banner', count: 1 },
-      { tileId: 'burg-gate', count: 1 }, { tileId: 'burg-corner', count: 1 },
-      { tileId: 'burg-corner-road', count: 1 }, { tileId: 'burg-street', count: 1 },
-      { tileId: 'burg-edge', count: 4 }, { tileId: 'burg-edge-road', count: 3 },
-      { tileId: 'road', count: 4 }, { tileId: 'road-bend', count: 2 },
-      { tileId: 'junction', count: 1 }, { tileId: 'stift', count: 1 },
+    story: 'The salt line builds walls. A town with no wall is a village.',
+    quests: [
+      q('salz-1', 'Stadtmauer', 'Finish a Burg of 4 or more tiles.', 'burg-size', 4),
+      q('salz-2', 'Zwei Banner', 'Finish a Burg flying 2 or more banners.', 'burg-banners', 2),
+      q('salz-3', 'Residenzstadt', 'Finish a Burg of 6 or more tiles.', 'burg-size', 6),
     ],
-    markt: [
-      { tileId: 'burg-cap-banner', count: 2 }, { tileId: 'burg-corner-banner', count: 2 },
-      { tileId: 'burg-street-banner', count: 1 }, { tileId: 'burg-centre', count: 1 },
-    ],
+    home: HOME_DECK, markt: MARKT_LIST,
   },
   {
     id: 'wein', name: 'Wein', theme: 'Monks and contemplation', colour: '#d9482b',
-    power: 'Deck: Stifte and winding roads.',
-    home: [
-      { tileId: 'stift', count: 1 }, { tileId: 'stift-lane', count: 1 },
-      { tileId: 'burg-edge', count: 2 }, { tileId: 'burg-edge-road', count: 2 },
-      { tileId: 'burg-corner', count: 2 }, { tileId: 'burg-street', count: 1 }, { tileId: 'burg-square', count: 2 },
-      { tileId: 'road', count: 4 }, { tileId: 'road-bend', count: 5 },
-      { tileId: 'junction', count: 1 }, { tileId: 'field', count: 1 },
+    story: 'The wine line keeps the abbeys. Where a Stift stands, the line has a voice.',
+    quests: [
+      q('wein-1', 'Klostergarten', 'Hold a Stift with 7 of its 8 neighbours built.', 'stift-neighbours', 7),
+      q('wein-2', 'Klostergründung', 'Finish a Stift.', 'stift', 1),
+      q('wein-3', 'Abtei in der Fremde', 'Finish a Stift outside your own portion.', 'stift-abroad'),
     ],
-    markt: [
-      { tileId: 'stift-gate', count: 2 }, { tileId: 'stift-junction', count: 1 },
-      { tileId: 'junction', count: 1 }, { tileId: 'burg-corner-road', count: 1 }, { tileId: 'burg-edge-road', count: 1 },
-    ],
+    home: HOME_DECK, markt: MARKT_LIST,
   },
   {
     id: 'forst', name: 'Forst', theme: 'Traveller variety', colour: '#2e9b6b',
-    power: 'Deck: roads beside Burg walls, made for Zoll.',
-    home: [
-      { tileId: 'road', count: 2 }, { tileId: 'road-badge', count: 1 },
-      { tileId: 'road-bend', count: 3 },
-      { tileId: 'burg-edge-road', count: 2 }, { tileId: 'burg-edge-bend', count: 2 },
-      { tileId: 'burg-edge', count: 4 }, { tileId: 'burg-corner', count: 2 },
-      { tileId: 'burg-corner-road', count: 1 }, { tileId: 'burg-square', count: 1 },
-      { tileId: 'stift', count: 2 }, { tileId: 'field', count: 2 },
+    story: 'The forest line keeps the roads. Whoever holds the road holds the trade.',
+    quests: [
+      q('forst-1', 'Landstraße', 'Finish a road of 5 or more tiles.', 'road-size', 5),
+      q('forst-2', 'Fernstraße', 'Finish a road of 6 or more tiles.', 'road-size', 6),
+      q('forst-3', 'Zollstraße', 'Finish a road that joins 4 Burgs.', 'road-burgs', 4),
     ],
-    markt: [
-      { tileId: 'junction', count: 1 }, { tileId: 'burg-edge-junction', count: 3 }, { tileId: 'burg-corner-road', count: 2 },
-    ],
+    home: HOME_DECK, markt: MARKT_LIST,
   },
   {
     id: 'hopfen', name: 'Hopfen', theme: 'Rural peace and freedom', colour: '#f2b630',
-    power: 'Deck: small Burgs among open fields.',
-    home: [
-      { tileId: 'burg-edge', count: 3 }, { tileId: 'burg-edge-road', count: 3 },
-      { tileId: 'burg-edge-bend', count: 2 }, { tileId: 'burg-corner', count: 2 },
-      { tileId: 'burg-street', count: 1 }, { tileId: 'burg-square', count: 1 },
-      { tileId: 'field', count: 2 }, { tileId: 'road', count: 3 }, { tileId: 'road-bend', count: 3 },
-      { tileId: 'junction', count: 1 }, { tileId: 'stift', count: 1 },
+    story: 'The hop line farms the open land between the towns.',
+    quests: [
+      q('hopfen-1', 'Gute Flur', 'End the game holding a field that touches 5 finished Burgs.', 'field-burgs', 5),
+      q('hopfen-2', 'Reiche Flur', 'End the game holding a field that touches 8 finished Burgs.', 'field-burgs', 8),
+      q('hopfen-3', 'Kornkammer', 'End the game holding a field that touches 10 finished Burgs.', 'field-burgs', 10),
     ],
-    markt: [
-      { tileId: 'burg-corner-road', count: 2 }, { tileId: 'burg-edge-road', count: 1 },
-      { tileId: 'burg-street-banner', count: 1 }, { tileId: 'burg-gate', count: 1 }, { tileId: 'burg-edge-bend', count: 1 },
-    ],
+    home: HOME_DECK, markt: MARKT_LIST,
   },
   {
     id: 'erz', name: 'Erz', theme: 'Miners and smiths', colour: '#8a52c4',
-    power: 'Deck: sturdy Burgs with banners at the Markt.',
-    home: [
-      { tileId: 'burg-corner', count: 2 }, { tileId: 'burg-edge', count: 3 }, { tileId: 'burg-edge-road', count: 3 },
-      { tileId: 'burg-square', count: 2 }, { tileId: 'burg-corner-road', count: 2 }, { tileId: 'burg-street', count: 1 },
-      { tileId: 'road', count: 3 }, { tileId: 'road-bend', count: 3 }, { tileId: 'junction', count: 1 },
-      { tileId: 'stift', count: 2 },
+    story: 'The ore line digs, forges and sells it all at the Markt.',
+    quests: [
+      q('erz-1', 'Marktrecht', 'Place 10 Markt tiles.', 'markt-tiles', 10),
+      q('erz-2', 'Residenzbau', 'Finish a Burg with 2 or more tiles in the Markt.', 'burg-markt', 2),
+      q('erz-3', 'Marktherr', 'Place 15 Markt tiles.', 'markt-tiles', 15),
     ],
-    markt: [
-      { tileId: 'burg-centre', count: 1 }, { tileId: 'burg-corner-banner', count: 2 }, { tileId: 'burg-gate-banner', count: 1 },
-      { tileId: 'burg-square-banner', count: 1 }, { tileId: 'stift-gate', count: 1 },
-    ],
+    home: HOME_DECK, markt: MARKT_LIST,
   },
   {
     id: 'tuch', name: 'Tuch', theme: 'Weavers and dyers', colour: '#e27fb0',
-    power: 'Deck: bannered streets and Stifte.',
-    home: [
-      { tileId: 'burg-edge', count: 3 }, { tileId: 'burg-edge-road', count: 2 }, { tileId: 'burg-corner', count: 2 },
-      { tileId: 'burg-street-banner', count: 2 }, { tileId: 'burg-square', count: 2 },
-      { tileId: 'road', count: 3 }, { tileId: 'road-bend', count: 3 }, { tileId: 'junction', count: 1 },
-      { tileId: 'stift', count: 2 }, { tileId: 'stift-lane', count: 2 },
+    story: 'The cloth line trades everywhere and settles wherever the trade is.',
+    quests: [
+      q('tuch-1', 'Niederlassung', 'Place 7 tiles on other lines\' land.', 'foreign-tiles', 7),
+      q('tuch-2', 'Kontor', 'Place 11 tiles on other lines\' land.', 'foreign-tiles', 11),
+      q('tuch-3', 'Tauschhandel', 'Swap 12 times.', 'swaps', 12),
     ],
-    markt: [
-      { tileId: 'burg-street-banner', count: 2 }, { tileId: 'burg-corner-banner', count: 2 },
-      { tileId: 'burg-square-banner', count: 1 }, { tileId: 'burg-gate-banner', count: 1 },
-    ],
+    home: HOME_DECK, markt: MARKT_LIST,
   },
 ];
 

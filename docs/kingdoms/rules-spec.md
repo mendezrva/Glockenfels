@@ -1,4 +1,4 @@
-# Heimfall, rules spec (v0.7)
+# Heimfall, rules spec (v0.8)
 
 Heimfall is a fork of Glockenfels. It keeps square tiles, edge matching and Wanderers, and adds four rival duchies of a fractured Bavaria around a central Markt. It lives on the `kingdoms` branch and never merges into `main`; the original game is untouched.
 
@@ -28,20 +28,20 @@ It is settled by development, diplomacy and deception, never by war. The rules b
 
 ## The duchies
 
-| Duchy | Seat | Theme | Deck leans toward | Markt pile (complementary tiles) |
-| --- | --- | --- | --- | --- |
-| **Salz** | North | Urban density | Most three-edge Burgs, plus Burg walls to close them | Banner caps and corners that finish big Burgs, the maypole centre |
-| **Wein** | East | Monks and contemplation | Most Stifte | Stifte with a road exit, plus a junction |
-| **Forst** | South | Traveller variety | Roads beside Burg walls, one waymarked road, no junctions | Junctions, Burg walls at a junction, Burg corners with road |
-| **Hopfen** | West | Rural peace and freedom | Small Burgs by open fields | Field gates: Burg corners and walls with roads |
-| **Erz** | (5 or 6 players) | Miners and smiths | Burg walls, corners and squares with plenty of roads | Banner Burgs, a Burg centre, a Stift by the Burg |
-| **Tuch** | (6 players) | Weavers and dyers | Banner Burg streets, Burg squares and four Stifte | Banner Burg streets, corners, a square and a gate |
+Every line plays with the **same home deck and the same Markt pile** (v0.8). What sets a line apart is its story and its three **side quests**.
 
-No duchy has a special ability (removed in v0.6). They differ only in their decks.
+| Line | Seat | Story | Low (4) | Medium (7) | High (10) |
+| --- | --- | --- | --- | --- | --- |
+| **Salz** | North | The salt line builds walls. | Stadtmauer: finish a Burg of 4+ tiles | Zwei Banner: finish a Burg with 2+ banners | Residenzstadt: finish a Burg of 6+ tiles |
+| **Wein** | East | The wine line keeps the abbeys. | Klostergarten: hold a Stift with 7 of 8 neighbours built | Klostergründung: finish a Stift | Abtei in der Fremde: finish a Stift outside your portion |
+| **Forst** | South | The forest line keeps the roads. | Landstraße: finish a road of 5+ tiles | Fernstraße: finish a road of 6+ tiles | Zollstraße: finish a road joining 4 Burgs |
+| **Hopfen** | West | The hop line farms the open land. | Gute Flur: end holding a field touching 5 finished Burgs | Reiche Flur: 8 finished Burgs | Kornkammer: 10 finished Burgs |
+| **Erz** | (5 or 6) | The ore line sells at the Markt. | Marktrecht: place 10 Markt tiles | Residenzbau: finish a Burg with 2+ tiles in the Markt | Marktherr: place 15 Markt tiles |
+| **Tuch** | (6) | The cloth line settles where the trade is. | Niederlassung: place 7 tiles on other lines' land | Kontor: 11 tiles on other lines' land | Tauschhandel: swap 12 times |
 
-The seats in the table above are for the standard four-player game. Any 2 to 6 different duchies can play; see **Table sizes**.
+A quest pays once, the moment it is met (end-of-game quests at the final scoring). All three are optional. Each line's cards total 21 points, and the bot simulator completes each tier at about the same rate for every line (low 52 to 57%, medium 29 to 34%, high 9 to 19%). No line has a special ability.
 
-Players rule one duchy each. Version 0.1 is for four players; three or two players leave a duchy empty, which the engine supports but the simulator has not tuned yet.
+The seats in the table above are for the standard four-player game. Any 2 to 6 different lines can play; see **Table sizes**.
 
 ## The board
 
@@ -89,48 +89,29 @@ On the wide Markt the two duchies sharing a side sit two cells either side of th
 
 ## Decks
 
-Each duchy has a **home deck of 22 tiles** (same size, different mix) and a **Markt pile of 6**.
+Every line has the same **home deck of 22 tiles** and draws its **Markt pile of 12** from the same list, shuffled.
 
-### Home decks
+### Home deck (22)
 
-| Tile | Edges (N, E, S, W) | Salz | Wein | Forst | Hopfen |
-| --- | --- | --- | --- | --- | --- |
-| Burg square | Burg, Burg, field, Burg | 2 | 2 | 1 | 1 |
-| Burg square with banner | Burg, Burg, field, Burg · banner | 1 | 0 | 0 | 0 |
-| Burg gate | Burg, Burg, road, Burg | 1 | 0 | 0 | 0 |
-| Burg corner | Burg, field, field, Burg | 1 | 2 | 2 | 2 |
-| Burg corner with road | Burg, road, road, Burg | 1 | 0 | 1 | 0 |
-| Burg street | field, Burg, field, Burg | 1 | 1 | 0 | 1 |
-| Burg wall | Burg, field, field, field | 4 | 2 | 4 | 3 |
-| Burg wall with road | Burg, road, field, road | 3 | 2 | 2 | 3 |
-| Burg wall with bend | Burg, field, road, road | 0 | 0 | 2 | 2 |
-| Road | road, field, road, field | 4 | 4 | 2 | 3 |
-| Waymarked road | road, field, road, field · badge | 0 | 0 | 1 | 0 |
-| Road bend | field, field, road, road | 2 | 5 | 3 | 3 |
-| Waymarked bend | field, field, road, road · badge | 0 | 0 | 0 | 0 |
-| Junction | field, road, road, road · shrine | 1 | 1 | 0 | 1 |
-| Stift | field ×4 · Stift | 1 | 1 | 2 | 1 |
-| Stift with lane | field, field, road, field · Stift | 0 | 1 | 0 | 0 |
-| Open field | field ×4 | 0 | 1 | 2 | 2 |
-| **Total** | | **22** | **22** | **22** | **22** |
+| Tile | Edges (N, E, S, W) | Count |
+| --- | --- | --- |
+| Burg square | Burg, Burg, field, Burg | 2 |
+| Burg gate | Burg, Burg, road, Burg | 1 |
+| Burg corner | Burg, field, field, Burg | 2 |
+| Burg corner with road | Burg, road, road, Burg | 1 |
+| Burg street | field, Burg, field, Burg | 1 |
+| Burg wall | Burg, field, field, field | 3 |
+| Burg wall with road | Burg, road, field, road | 2 |
+| Burg wall with bend | Burg, field, road, road | 1 |
+| Road | road, field, road, field | 3 |
+| Road bend | field, field, road, road | 3 |
+| Junction | field, road, road, road · shrine | 1 |
+| Stift | field ×4 · Stift | 1 |
+| Open field | field ×4 | 1 |
 
-### Markt piles
+### Markt list (repeated to fill a pile of 12)
 
-| Tile | Edges (N, E, S, W) | Salz | Wein | Forst | Hopfen |
-| --- | --- | --- | --- | --- | --- |
-| Burg wall with banner | Burg, field, field, field · banner | 2 | 0 | 0 | 0 |
-| Burg corner with banner | Burg, field, field, Burg · banner | 2 | 0 | 0 | 0 |
-| Burg street with banner | field, Burg, field, Burg · banner | 1 | 0 | 0 | 1 |
-| Burg centre with maypole | Burg ×4 · banner | 1 | 0 | 0 | 0 |
-| Stift by the Burg | Burg, field, road, field · Stift | 0 | 2 | 0 | 0 |
-| Stift at the crossing | field, road, road, road · Stift | 0 | 1 | 0 | 0 |
-| Junction | field, road, road, road · shrine | 0 | 1 | 1 | 0 |
-| Burg wall at a junction | Burg, road, road, road · shrine | 0 | 0 | 3 | 0 |
-| Burg corner with road | Burg, road, road, Burg | 0 | 1 | 2 | 2 |
-| Burg wall with road | Burg, road, field, road | 0 | 1 | 0 | 1 |
-| Burg wall with bend | Burg, field, road, road | 0 | 0 | 0 | 1 |
-| Burg gate | Burg, Burg, road, Burg | 0 | 0 | 0 | 1 |
-| **Total** | | **6** | **6** | **6** | **6** |
+Burg corner with banner, Burg wall with banner, Burg wall at a junction, Stift by the Burg, Junction, Burg corner with road.
 
 ## Setup
 
@@ -185,6 +166,10 @@ A road **joins** a Burg when one of its tiles also holds part of that Burg: a ga
 Majority rules as in Glockenfels: most Wanderers on a feature scores it; ties all score in full.
 
 **Game end:** after 25 rounds, score unfinished features and fields. Highest score wins; ties share the win. Home tiles you never drew score nothing, so a Markt tile always costs you a home tile.
+
+## Side quests, one deck for all (v0.8)
+
+Mark's change of 2026-11-10: the lines no longer differ by deck. Each carries three optional quest cards from its story (low 4, medium 7, high 10; `questPoints`). The quest kinds the engine can check: Burg size, Burg banners, Burg shared with another line, Burg tiles in the Markt, Stift finished, Stift finished abroad, Stift neighbours, road length, Burgs joined by a road, road loop, field touching finished Burgs at the end, linked to every line at the end, Markt tiles placed, tiles placed on other lines' land, swaps, all Wanderers out. Cards were tuned so each tier completes at about the same rate for every line. Not used because the bots never manage them: the shared Burg (2%) and the road loop (3%); both stay available as kinds.
 
 ## Empty Markt and 25 rounds (v0.7)
 

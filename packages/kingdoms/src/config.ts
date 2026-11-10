@@ -1,5 +1,6 @@
 /** Every tunable number of Heimfall. The balance simulator sweeps these. */
 import { DUCHIES, type DeckEntry, type DuchyDef } from './tiles';
+import type { QuestDef } from './quests';
 
 export interface KConfig {
   /** Wanderers per player. */
@@ -59,6 +60,8 @@ export interface KConfig {
   swapsPerTurn: number;
   /** Start with the Marktburg in the middle of the Markt. Off: the Markt starts empty. */
   centreTile: boolean;
+  /** Points for a line's low, medium and high side quest. Empty turns quests off. */
+  questPoints: number[];
   /** Who you may swap with: any duchy, or only duchies in your Markt league. */
   swapTargets: 'any' | 'league';
   /** Where the tile you give away goes in the other deck. */
@@ -75,6 +78,8 @@ export interface KOptions extends Partial<Omit<KConfig, 'scoring' | 'powers' | '
   duchyIds?: DuchyDef['id'][];
   /** Replace a duchy's home deck or Markt pile. */
   decks?: Partial<Record<DuchyDef['id'], { home?: DeckEntry[]; markt?: DeckEntry[] }>>;
+  /** Replace single quests: duchy id to (index to quest). */
+  quests?: Partial<Record<DuchyDef['id'], Partial<Record<number, QuestDef>>>>;
 }
 
 export const DEFAULT_CONFIG: KConfig = {
@@ -103,6 +108,7 @@ export const DEFAULT_CONFIG: KConfig = {
   swapsPerTurn: 1,
   marktPile: 12,
   centreTile: false,
+  questPoints: [4, 7, 10],
   swapTargets: 'any',
   swapGivesTo: 'bottom',
   duchies: DUCHIES.slice(0, 4),
@@ -112,7 +118,7 @@ export const DEFAULT_CONFIG: KConfig = {
 export const defaultDuchies = (n: number): DuchyDef['id'][] => DUCHIES.slice(0, Math.max(2, Math.min(6, n))).map((d) => d.id);
 
 export function buildConfig(o: KOptions = {}): KConfig {
-  const { scoring, powers, decks, duchyIds, ...rest } = o;
+  const { scoring, powers, decks, duchyIds, quests, ...rest } = o;
   const picked = (duchyIds ?? DEFAULT_CONFIG.duchies.map((d) => d.id)).map((id) => {
     const d = DUCHIES.find((x) => x.id === id);
     if (!d) throw new Error(`Unknown duchy ${id}`);
@@ -124,6 +130,6 @@ export function buildConfig(o: KOptions = {}): KConfig {
     ...rest,
     scoring: { ...DEFAULT_CONFIG.scoring, ...scoring },
     powers: { ...DEFAULT_CONFIG.powers, ...powers },
-    duchies: picked.map((d) => ({ ...d, home: decks?.[d.id]?.home ?? d.home, markt: decks?.[d.id]?.markt ?? d.markt })),
+    duchies: picked.map((d) => ({ ...d, home: decks?.[d.id]?.home ?? d.home, markt: decks?.[d.id]?.markt ?? d.markt, quests: d.quests.map((q, i) => quests?.[d.id]?.[i] ?? q) })),
   };
 }

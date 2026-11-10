@@ -177,7 +177,7 @@ describe('full games', () => {
       const r = playGame(cfg, 500 + g, g % 4, bots);
       expect(r.turns).toBeGreaterThan(60);
       expect(r.winners.length).toBeGreaterThan(0);
-      r.scores.forEach((sc, i) => expect(sc).toBe(r.home[i] + r.foreign[i] + r.zollIn[i] - r.zollOut[i] - r.forfeited[i]));
+      r.scores.forEach((sc, i) => expect(sc).toBe(r.home[i] + r.foreign[i] + r.zollIn[i] - r.zollOut[i] - r.forfeited[i] + r.questPts[i]));
     }
   });
   it('never offers an illegal turn', () => {
@@ -211,7 +211,7 @@ describe('table sizes', () => {
       if (c.duchies.some((d) => d.id === 'erz')) expect(s.players[4].wanderers).toBe(c.powers.erzWanderers);
       const r = playGame(c, 900 + n, 0, Array(n).fill(PROFILES.balanced));
       expect(r.winners.length).toBeGreaterThan(0);
-      r.scores.forEach((sc, i) => expect(sc).toBe(r.home[i] + r.foreign[i] + r.zollIn[i] - r.zollOut[i] - r.forfeited[i]));
+      r.scores.forEach((sc, i) => expect(sc).toBe(r.home[i] + r.foreign[i] + r.zollIn[i] - r.zollOut[i] - r.forfeited[i] + r.questPts[i]));
     });
   }
   it('lets Tuch swap before closing its gap', () => {

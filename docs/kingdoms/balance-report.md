@@ -1,4 +1,4 @@
-# Heimfall balance report (v0.7)
+# Heimfall balance report (v0.8)
 
 Run it yourself: `npm run sim -w packages/kingdoms -- 400` (add `--json`, or override any setting, for example `scoring.stiftComplete=9` or `deck.wein.home.stift=3`). Raw numbers for this report are in `balance-v0.2.json` (v0.1 numbers are in `balance-v0.1.json`).
 
@@ -20,6 +20,27 @@ What this shows:
 - **Duchy powers scale with the table.** Salz's Zoll needs many swappers, so Salz is weak at small tables; Forst's double swap is strongest with few rivals. Erz and Tuch were tuned at six and are a little strong at four.
 - **Wide tables link less.** With six, everyone links in 46% of games (four players: 66 to 74%). A 7 × 3 Markt was worse (24%), so the default wide Markt is 5 × 3.
 - Next tuning steps: a 5-player seat layout for the south seat, and per-table-size power values (for example Salz's Zoll factor) if the small-table numbers matter.
+
+## Side quests and one shared deck (v0.8)
+
+About 6,500 bot games. With one deck for all, the lines are even before quests; the cards were then tuned so each tier completes at about the same rate. 400 games, four players, balanced bots:
+
+| Line | Low | Medium | High | Quest points per game | Wins |
+|---|---|---|---|---|---|
+| Salz | 57% | 30% | 14% | 5.8 | 26.0% |
+| Wein | 52% | 31% | 9% | 5.1 | 21.6% |
+| Forst | 54% | 34% | 14% | 5.9 | 24.8% |
+| Hopfen | 52% | 33% | 19% | 6.3 | 27.6% |
+
+Erz and Tuch at a four-line table with Salz and Wein (300 games): Erz 57 / 30 / 16% (6.0 points), Tuch 46 / 27 / 18% (5.5 points). At six lines, Hopfen (7.8) and Tuch (7.3) pull ahead because wider tables finish more Burgs and link more; a six-line pass is still owed.
+
+Findings:
+
+- A second Stift in the shared deck cut every line's score by 6 and the contested share by a third, so the deck keeps one.
+- Measured rates for the kinds not adopted: shared Burg 2%, road loop 3%, Stift abroad 9 to 11%, all Wanderers out 60%, linked to every line 85%, swap 10 times 56% but 14 times 1%.
+- Quests add about 6 points to an 86-point average. Contested share stays at 38%.
+
+Raw output: `balance-v0.8.json`.
 
 ## Empty Markt and longer games (v0.7)
 

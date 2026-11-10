@@ -10,7 +10,7 @@ export interface SavedKingdoms {
   duchies?: DuchyId[];
 }
 
-const SAVE_KEY = 'glockenfels.kingdoms.save.v5';
+const SAVE_KEY = 'glockenfels.kingdoms.save.v6';
 
 export function loadSave(): SavedKingdoms | null {
   try {

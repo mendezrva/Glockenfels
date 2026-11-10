@@ -5,9 +5,10 @@
  */
 import { DX, DZ } from '@glockenfels/engine';
 import { keyOf, sectorOf, zoneOf } from './board';
+import { featureMeets, isStateQuest, type Done } from './quests';
 import {
   anchorKey, candidates, connects, current, featureValue, homeKey, majority, MARKT, neighbourCount, networks,
-  placementsFor, preview, zollForBurgs, burgsOnRoad, tileAnalysis, tileAt, type KAction, type KPiece, type KState, type PreviewFeature,
+  placementsFor, preview, zollForBurgs, burgsOnRoad, residenzTiles, tileAnalysis, tileAt, type KAction, type KPiece, type KState, type PreviewFeature,
 } from './game';
 
 export interface BotProfile {
@@ -84,6 +85,19 @@ export function chooseTurn(s: KState, profile: BotProfile, rnd: () => number): K
   const scarcity = 1.2 + Math.max(0, 4 - me.wanderers) * 0.8;
 
   const capped = s.cfg.awardRatio > 0 && me.homePts + 6 > me.foreignPts * s.cfg.awardRatio + s.cfg.awardAllowance;
+  // Open quests and what they pay.
+  const quests = s.cfg.duchies[p].quests.map((q, i) => ({ q, i, pts: s.cfg.questPoints[i] ?? 0 })).filter((x) => x.pts > 0 && !me.quests[x.i]);
+  const questFeatureBonus = (f: PreviewFeature, x: number, z: number, shared: boolean) => {
+    if (!quests.length || !f.complete) return 0;
+    let marktTiles = zoneOf(s.cfg, x, z) === 'markt' ? 1 : 0;
+    for (const r of f.roots) marktTiles += residenzTiles(s, s.features[r].tiles);
+    const d: Done = { kind: f.kind, tiles: f.tiles, banner: f.banner, marktTiles, burgs: f.burgs, shared, abroad: sectorOf(s.cfg, x, z) !== p, loop: false };
+    let v = 0;
+    for (const { q, pts } of quests) if (!isStateQuest(q.kind) && featureMeets(q, d, me.completed.monastery + (f.kind === 'monastery' ? 1 : 0))) v += pts;
+    return v;
+  };
+  /** Progress toward a state quest is worth a share of its points. */
+  const step = (pts: number, left: number) => (pts * 0.6) / Math.max(1, left);
   let best: { a: KAction; v: number } | null = null;
   for (const c of candidates(s, p)) {
     const zollPaid = c.zoll.reduce((a, z) => a + z.amount, 0);
@@ -100,6 +114,12 @@ export function chooseTurn(s: KState, profile: BotProfile, rnd: () => number): K
       for (let e = 0; e < 4; e++) if (tileAt(s, pl.x + DX[e], pl.z + DZ[e])) nb++;
       if (sector === p && zone === 'stamm') bias += profile.cultivate * (0.5 + 0.4 * nb);
       if (zone === 'markt') bias += s.cfg.scoring.residenzPerTile * 0.8;
+      for (const { q, pts } of quests) {
+        if (q.kind === 'markt-tiles' && c.style === MARKT) bias += step(pts, q.n - me.marktPlaced);
+        if (q.kind === 'foreign-tiles' && sector !== p && sector >= 0) bias += step(pts, q.n - me.foreignPlaced);
+        if (q.kind === 'swaps' && c.swaps.length) bias += step(pts, q.n - me.swaps);
+        if (q.kind === 'linked-all') bias += profile.reach >= 0 ? 0.5 : 0;
+      }
       if (zone === 'vorland' && sector !== p && sector >= 0 && s.gapClosed[sector]) bias -= s.cfg.vorlandToll * (1 + 1 / (n - 1));
       if (!s.gapClosed[p]) {
         const after = Math.min(gapBefore, manhattanToSet(pl.x, pl.z, vorTiles));
@@ -143,6 +163,7 @@ export function chooseTurn(s: KState, profile: BotProfile, rnd: () => number): K
         let v = 0;
         for (const o of owners) v += o === p ? value : -value / (n - 1);
         if (f.complete) for (const pc of pieces) if (pc.player === p) v += scarcity * 0.6;
+        if (f.complete && owners.includes(p)) v += questFeatureBonus(f, pl.x, pl.z, owners.length > 1);
         return v;
       };
       for (const g of groups) points += settle(g.f, g.f.pieces);
@@ -166,8 +187,11 @@ export function chooseTurn(s: KState, profile: BotProfile, rnd: () => number): K
         let v = points;
         if (claim !== null) {
           const f = pv[claim];
-          if (f.complete) v += featureValueFromPreview(s, f, pl.x, pl.z);
+          if (f.complete) v += featureValueFromPreview(s, f, pl.x, pl.z) + questFeatureBonus(f, pl.x, pl.z, false);
           else v += estimate(s, f, pl.x, pl.z, late) - (f.kind === 'meadow' ? 1.5 * late : 0) - scarcity;
+          if (me.wanderers === 1) for (const { q, pts } of quests) if (q.kind === 'wanderers-out') v += pts * 0.7;
+          if (f.kind === 'meadow') for (const { q, pts } of quests) if (q.kind === 'field-burgs' && new Set(f.towns).size >= q.n - 2) v += step(pts, Math.max(1, q.n - new Set(f.towns).size)) * 0.5;
+          if (f.kind === 'monastery') for (const { q, pts } of quests) if (q.kind === 'stift-claim' || q.kind === 'stift-neighbours') v += pts * 0.15;
         }
         // The award: once seat-land points outrun what contested land allows, more of them are worth little.
         if (capped) v = sector === p ? v * 0.35 : v * (1 + Math.min(1.5, s.cfg.awardRatio) * 0.6) + 1;

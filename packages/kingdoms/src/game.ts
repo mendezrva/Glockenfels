@@ -4,6 +4,7 @@
  * change goes through `apply`, so a seed plus the action log replays a game exactly.
  */
 import { analyze, DX, DZ, OPPOSITE, oppositeSlot, type FeatureKind, type TileAnalysis } from '@glockenfels/engine';
+import { doneOf, featureMeets, stateMeets } from './quests';
 import { keyOf, layout, sectorOf, zoneOf } from './board';
 import type { KConfig } from './config';
 import { K_TILES } from './tiles';
@@ -37,6 +38,10 @@ export interface KPlayer {
   forfeited: number;
   byKind: Record<FeatureKind, number>;
   swaps: number; marktPlaced: number; foreignPlaced: number;
+  /** Completed features by kind, for quests. */
+  completed: Record<FeatureKind, number>;
+  /** Which of the line's three quests are done, and the points they paid. */
+  quests: boolean[]; questPts: number;
   gapClosedTurn: number | null; firstLinkTurn: number | null;
 }
 
@@ -57,6 +62,7 @@ export type KEvent =
   | { type: 'gapClosed'; player: number }
   | { type: 'linked'; players: number[] }
   | { type: 'passed'; player: number }
+  | { type: 'quest'; player: number; quest: number; points: number }
   | { type: 'ended'; winners: number[] };
 
 export interface KState {
@@ -486,6 +492,7 @@ export function createGame(cfg: KConfig, seed: number, first = 0): KState {
     players: cfg.duchies.map((_, i) => ({
       duchy: i, score: 0, wanderers: cfg.duchies[i].id === 'erz' ? cfg.powers.erzWanderers : cfg.wanderers, byKind: { road: 0, town: 0, monastery: 0, meadow: 0 }, homePts: 0, foreignPts: 0, zollIn: 0, zollOut: 0, forfeited: 0,
       swaps: 0, marktPlaced: 0, foreignPlaced: 0, gapClosedTurn: null, firstLinkTurn: null,
+      completed: { road: 0, town: 0, monastery: 0, meadow: 0 }, quests: cfg.duchies[i].quests.map(() => false), questPts: 0,
     })),
     order: Array.from({ length: n }, (_, i) => (first + i) % n),
     seat: 0, turn: 0, passes: 0, gapClosed: Array(n).fill(false), links: [], dead: 0,
@@ -587,9 +594,34 @@ function scoreFeature(s: KState, f: KFeature, complete: boolean) {
   }
   if (winners.length) s.events.push({ type: 'scored', featureId: f.id, kind: f.kind, players: winners, points, zoll, complete, tiles: f.tiles.slice() });
   if (complete) {
+    for (const p of winners) { s.players[p].completed[f.kind]++; checkFeatureQuests(s, p, f); }
     for (const piece of f.pieces) { s.players[piece.player].wanderers++; s.events.push({ type: 'returned', piece }); }
     f.pieces = [];
   }
+}
+
+/** Pays quest `i` of player p. */
+function payQuest(s: KState, p: number, i: number) {
+  const pts = s.cfg.questPoints[i] ?? 0;
+  s.players[p].quests[i] = true;
+  s.players[p].questPts += pts;
+  s.players[p].score += pts;
+  s.events.push({ type: 'quest', player: p, quest: i, points: pts });
+}
+
+function checkFeatureQuests(s: KState, p: number, f: KFeature) {
+  if (!s.cfg.questPoints.length) return;
+  const d = doneOf(s, f, p);
+  s.cfg.duchies[p].quests.forEach((q, i) => {
+    if (!s.players[p].quests[i] && featureMeets(q, d, s.players[p].completed.monastery)) payQuest(s, p, i);
+  });
+}
+
+function checkStateQuests(s: KState, p: number, atEnd: boolean) {
+  if (!s.cfg.questPoints.length) return;
+  s.cfg.duchies[p].quests.forEach((q, i) => {
+    if (!s.players[p].quests[i] && stateMeets(s, p, q, atEnd)) payQuest(s, p, i);
+  });
 }
 
 function scoreCompleted(s: KState, placed: KTile) {
@@ -621,6 +653,7 @@ function endGame(s: KState) {
     const lost = Math.max(0, pl.homePts - cap);
     if (lost) { pl.forfeited = lost; pl.score -= lost; }
   }
+  s.players.forEach((_, p) => checkStateQuests(s, p, true));
   const top = Math.max(...s.players.map((p) => p.score));
   s.winners = s.players.map((_, i) => i).filter((i) => s.players[i].score === top);
   s.events.push({ type: 'ended', winners: s.winners });
@@ -747,6 +780,7 @@ export function apply(s: KState, action: KAction): KState {
   }
   scoreCompleted(s, placed);
   refreshReach(s, p);
+  checkStateQuests(s, p, false);
   s.seat = (s.seat + 1) % s.order.length;
   const events = s.events;
   beginTurn(s);
