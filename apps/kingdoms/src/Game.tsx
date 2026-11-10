@@ -238,7 +238,7 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
           const ts = e.tiles.map((k) => s.board[k]).filter(Boolean);
           const cx = (ts.reduce((a, t) => a + t.x, 0) / ts.length) * TILE, cz = (ts.reduce((a, t) => a + t.z, 0) / ts.length) * TILE;
           add.push({ id: ++fx.current, x: cx, z: cz, player: pieceSlot(e.players[0]), big: e.complete && e.points >= 8,
-            text: `+${e.points}${e.players.length > 1 ? ' each' : ''}`, sub: `${KIND[e.kind]}${e.complete ? ' complete' : ''} · ${e.players.map(nameOf).join(' & ')}` });
+            text: `+${e.points}${e.players.length > 1 ? ' each' : ''}`, sub: `${KIND[e.kind]}${e.complete ? ' complete' : ''}${e.zoll ? ` · Zoll +${e.zoll}` : ''} · ${e.players.map(nameOf).join(' & ')}` });
           if (e.complete) { setBounce({ keys: e.tiles, n: Date.now() }); if (e.kind === 'town' && !reducedMotion) setParty({ x: cx, z: cz, n: Date.now() }); }
           break;
         }
@@ -480,7 +480,7 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
                   <span className="rank">{s.winners?.includes(pl.i) ? '👑' : i + 1}</span>
                   <span className="dot" />
                   <span className="pname">{nameOf(pl.i)} <em>{s.cfg.duchies[pl.i].name}</em></span>
-                  <small className="k-split">home {pl.homePts}{pl.forfeited ? ` (${pl.forfeited} not confirmed)` : ''} · contested {pl.foreignPts} · Zoll {pl.zollIn - pl.zollOut >= 0 ? '+' : ''}{pl.zollIn - pl.zollOut}</small>
+                  <small className="k-split">home {pl.homePts}{pl.forfeited ? ` (${pl.forfeited} not confirmed)` : ''} · contested {pl.foreignPts} · Zoll +{pl.zollIn}{pl.zollOut ? ` · fees −${pl.zollOut}` : ''}</small>
                   <b>{pl.score}</b>
                 </li>
               ))}
@@ -514,8 +514,9 @@ function HelpCard({ onClose, s }: { onClose: () => void; s: KState }) {
           <li><b>Pick a pile.</b> <span>Your home deck, your reserve, or any Markt pile you can reach. The top tile is face up.</span></li>
           <li><b>Close your gap.</b> <span>Build from your Stammburg to your Vorland by the Markt. That opens your Markt pile and lets you swap.</span></li>
           <li><b>Link through the Markt.</b> <span>Markt tiles join Vorlands. Linked duchies build on each other's Vorland and share Markt piles. Links chain into one league.{s.cfg.pactFee ? ` Whoever lays the linking tile pays ${s.cfg.pactFee} for each new pact.` : ''}{s.cfg.marktFee ? ` Drawing from another line's Markt pile costs ${s.cfg.marktFee} Zoll, paid to that line.` : ''}</span></li>
-          <li><b>Swap.</b> <span>Trade your tile for another duchy's top tile, then play it on your land or theirs. Pay {s.cfg.zoll} Zoll if that duchy has closed its gap.</span></li>
+          <li><b>Swap.</b> <span>Trade your tile for another duchy's top tile, then play it on your land or theirs.{s.cfg.swapFee ? ` Pay ${s.cfg.swapFee} if that duchy has closed its gap.` : ''}</span></li>
           <li><b>Score.</b> <span>Burg 2 a tile (+2 a banner), road 1 a tile (+1 a waymark), Stift {s.cfg.scoring.stiftComplete}, fields {s.cfg.scoring.fieldPerBurg} for each finished Burg.{s.cfg.scoring.residenzPerTile ? ` Burgs and roads earn ${s.cfg.scoring.residenzPerTile} more for each of their tiles in the Markt.` : ''} {s.cfg.rounds} rounds.</span></li>
+          {s.cfg.zoll > 0 && <li><b>Zoll.</b> <span>A road that joins two or more Burgs earns {s.cfg.zoll} Zoll{s.cfg.zollMode === 'perBurg' ? ' for each Burg' : ''} on top of its points. A road joins a Burg when it shares a tile with it.</span></li>}
           {s.cfg.awardRatio > 0 && <li><b>The award.</b> <span>Points from your own portion count only up to your contested points (the Markt and other lines' land){s.cfg.awardRatio !== 1 ? ` times ${s.cfg.awardRatio}` : ''}{s.cfg.awardAllowance ? `, plus ${s.cfg.awardAllowance}` : ''}. The rest is struck off at the end.</span></li>}
         </ul>
         <ul>

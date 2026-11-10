@@ -7,7 +7,7 @@ import { DX, DZ } from '@glockenfels/engine';
 import { keyOf, sectorOf, zoneOf } from './board';
 import {
   anchorKey, candidates, connects, current, featureValue, homeKey, majority, MARKT, neighbourCount, networks,
-  placementsFor, preview, tileAnalysis, tileAt, type KAction, type KPiece, type KState, type PreviewFeature,
+  placementsFor, preview, zollForBurgs, burgsOnRoad, tileAnalysis, tileAt, type KAction, type KPiece, type KState, type PreviewFeature,
 } from './game';
 
 export interface BotProfile {
@@ -43,7 +43,7 @@ function estimate(s: KState, f: PreviewFeature, x: number, z: number, late: numb
       const left = f.tiles * sc.burgIncompletePerTile + f.banner * sc.burgIncompletePerBanner;
       return (pc * late) * done + (1 - pc * late) * left;
     }
-    case 'road': return f.tiles * sc.roadPerTile + f.badge * sc.roadPerBadge + f.open * 0.6 * late;
+    case 'road': return f.tiles * sc.roadPerTile + f.badge * sc.roadPerBadge + f.open * 0.6 * late + zollForBurgs(s, f.burgs);
     case 'monastery': {
       const nb = neighbourCount(s, { x, z });
       const now = Math.min(sc.stiftComplete - 1, (nb + 1) * sc.stiftIncompletePerTile);
@@ -193,7 +193,7 @@ function seenClaimOk(pv: PreviewFeature[], i: number) {
 }
 
 function featureValueFromPreview(s: KState, f: PreviewFeature, x: number, z: number) {
-  return featureValue(s, { id: -1, kind: f.kind, tiles: Array(f.tiles).fill(keyOf(x, z)), open: f.open, banner: f.banner, badge: f.badge, pieces: f.pieces, scored: false, touchesTowns: f.towns }, true);
+  return featureValue(s, { id: -1, kind: f.kind, tiles: Array(f.tiles).fill(keyOf(x, z)), open: f.open, banner: f.banner, badge: f.badge, pieces: f.pieces, scored: false, touchesTowns: f.towns }, true) + (f.kind === 'road' ? zollForBurgs(s, f.burgs) : 0);
 }
 
 /** Estimated value of the largest existing part before this tile joined it (so growth counts, not the whole). */
@@ -202,7 +202,7 @@ function estimateBefore(s: KState, f: PreviewFeature, late: number) {
   for (const r of f.roots) {
     const g = s.features[r];
     if (g.kind === 'meadow') continue;
-    const pf: PreviewFeature = { kind: g.kind, roots: [r], open: g.open, tiles: g.tiles.length, banner: g.banner, badge: g.badge, pieces: g.pieces, complete: false, towns: [] };
+    const pf: PreviewFeature = { kind: g.kind, roots: [r], open: g.open, tiles: g.tiles.length, banner: g.banner, badge: g.badge, pieces: g.pieces, complete: false, towns: [], burgs: g.kind === 'road' ? burgsOnRoad(s, g) : 0 };
     const t = s.board[g.tiles[0]];
     v += estimate(s, pf, t.x, t.z, late);
   }

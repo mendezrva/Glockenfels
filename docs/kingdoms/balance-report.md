@@ -1,4 +1,4 @@
-# Heimfall balance report (v0.5)
+# Heimfall balance report (v0.6)
 
 Run it yourself: `npm run sim -w packages/kingdoms -- 400` (add `--json`, or override any setting, for example `scoring.stiftComplete=9` or `deck.wein.home.stift=3`). Raw numbers for this report are in `balance-v0.2.json` (v0.1 numbers are in `balance-v0.1.json`).
 
@@ -20,6 +20,30 @@ What this shows:
 - **Duchy powers scale with the table.** Salz's Zoll needs many swappers, so Salz is weak at small tables; Forst's double swap is strongest with few rivals. Erz and Tuch were tuned at six and are a little strong at four.
 - **Wide tables link less.** With six, everyone links in 46% of games (four players: 66 to 74%). A 7 × 3 Markt was worse (24%), so the default wide Markt is 5 × 3.
 - Next tuning steps: a 5-player seat layout for the south seat, and per-table-size power values (for example Salz's Zoll factor) if the small-table numbers matter.
+
+## Zoll as a road reward, no powers, no cap (v0.6)
+
+About 5,500 bot games, 240 to 400 per variant, 4 players unless noted.
+
+| Variant | Zoll points per game | Average score | Duchy wins (Salz, Wein, Forst, Hopfen) |
+|---|---|---|---|
+| No Zoll, old decks | 0 | 54.9 | 16 / 22 / 40 / 21 |
+| Flat 2 | 16.5 | 58.8 | 21 / 17 / 43 / 20 |
+| Flat 3 | 27.6 | 60.9 | 18 / 16 / 48 / 18 |
+| Flat 4 | 39.3 | 63.0 | 14 / 15 / 52 / 20 |
+| 1 per Burg | 20.6 | 58.9 | 17 / 20 / 41 / 22 |
+| 2 per Burg | 48.3 | 65.1 | 13 / 17 / 54 / 17 |
+| **Adopted: flat 3, new Forst deck (400 games)** | **26.4** | **58.2** | **24.6 / 26.1 / 25.2 / 24.1** |
+
+Findings:
+
+- The powers were holding Forst down. With them gone its road-heavy deck won 40% before any Zoll. Removing waymarks alone did not fix it; it took four fewer road tiles as well.
+- Flat 3 makes Zoll about 11% of all points. A road between two Burgs is usually 3 to 5 tiles, so the Zoll roughly doubles it.
+- Without the cap, contested land is back to 25% of feature points (it was 51% with the cap). Balanced bots still win 37.5% per seat, reachers 24%, pure cultivators 1%.
+- The gap closes around round 5.6 and the first pact lands around round 10. Everyone is linked in 66% of games, down from 85%, because nothing forces players out of their own land now.
+- Other tables are untuned after this change: at 3 players Forst wins 45%, at 6 players duchies range from 9.5 to 23%.
+
+Raw output: `balance-v0.6.json`.
 
 ## Three-space gap (v0.5)
 

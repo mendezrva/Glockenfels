@@ -25,7 +25,12 @@ export interface KConfig {
     /** Extra points per Burg or road tile that lies in the Residenz land (the Markt zone). */
     residenzPerTile: number;
   };
+  /** Zoll: points a road earns when it joins two or more Burgs. */
   zoll: number;
+  /** 'flat' pays the Zoll once per road, 'perBurg' pays it for every Burg on the road. */
+  zollMode: 'flat' | 'perBurg';
+  /** Old swap tax, paid to the duchy you swap into. Off. */
+  swapFee: number;
   /**
    * The award: points from your own portion count only up to this many times your points from
    * contested land (the Markt and other lines' portions), plus the allowance. 0 turns the rule off.
@@ -84,13 +89,15 @@ export const DEFAULT_CONFIG: KConfig = {
     fieldPerBurg: 3,
     residenzPerTile: 1,
   },
-  zoll: 1,
-  awardRatio: 1,
+  zoll: 3,
+  zollMode: 'flat',
+  swapFee: 0,
+  awardRatio: 0,
   awardAllowance: 10,
-  marktFee: 1,
+  marktFee: 0,
   vorlandToll: 0,
   pactFee: 3,
-  powers: { salzZollFactor: 2, weinPeek: 2, weinMode: 'choose', forstSwaps: 2, hopfenPaysZoll: false, erzWanderers: 10, tuchEarlySwap: true },
+  powers: { salzZollFactor: 1, weinPeek: 1, weinMode: 'choose', forstSwaps: 1, hopfenPaysZoll: true, erzWanderers: 7, tuchEarlySwap: false },
   swapsPerTurn: 1,
   marktPile: 6,
   swapTargets: 'any',

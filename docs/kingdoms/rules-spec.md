@@ -1,4 +1,4 @@
-# Heimfall, rules spec (v0.5)
+# Heimfall, rules spec (v0.6)
 
 Heimfall is a fork of Glockenfels. It keeps square tiles, edge matching and Wanderers, and adds four rival duchies of a fractured Bavaria around a central Markt. It lives on the `kingdoms` branch and never merges into `main`; the original game is untouched.
 
@@ -28,14 +28,16 @@ It is settled by development, diplomacy and deception, never by war. The rules b
 
 ## The duchies
 
-| Duchy | Seat | Theme | Deck leans toward | Markt pile (complementary tiles) | Power |
-| --- | --- | --- | --- | --- | --- |
-| **Salz** | North | Urban density | Most three-edge Burgs, plus Burg walls to close them | Banner caps and corners that finish big Burgs, the maypole centre | **Salzregal:** collects double Zoll on every swap into Salz. The swapper pays the normal Zoll; even Hopfen's swaps pay Salz. |
-| **Wein** | East | Monks and contemplation | Most Stifte | Stifte with a road exit, plus a junction | **Besinnung:** sees the top two tiles of its home deck and may take either; the other stays on top. |
-| **Forst** | South | Traveller variety | Waymarked roads (+1 each), no junctions | Junctions, Burg walls at a junction, Burg corners with road | **Waldläufer:** may swap twice per turn. |
-| **Hopfen** | West | Rural peace and freedom | Small Burgs by open fields | Field gates: Burg corners and walls with roads | **Landfrieden:** pays no Zoll. |
-| **Erz** | (5 or 6 players) | Miners and smiths | Burg walls, corners and squares with plenty of roads | Banner Burgs, a Burg centre, a Stift by the Burg | **Bergleute:** starts with 10 Wanderers instead of 7. |
-| **Tuch** | (6 players) | Weavers and dyers | Banner Burg streets, Burg squares and four Stifte | Banner Burg streets, corners, a square and a gate | **Tuchhandel:** may swap before closing its gap. |
+| Duchy | Seat | Theme | Deck leans toward | Markt pile (complementary tiles) |
+| --- | --- | --- | --- | --- |
+| **Salz** | North | Urban density | Most three-edge Burgs, plus Burg walls to close them | Banner caps and corners that finish big Burgs, the maypole centre |
+| **Wein** | East | Monks and contemplation | Most Stifte | Stifte with a road exit, plus a junction |
+| **Forst** | South | Traveller variety | Roads beside Burg walls, one waymarked road, no junctions | Junctions, Burg walls at a junction, Burg corners with road |
+| **Hopfen** | West | Rural peace and freedom | Small Burgs by open fields | Field gates: Burg corners and walls with roads |
+| **Erz** | (5 or 6 players) | Miners and smiths | Burg walls, corners and squares with plenty of roads | Banner Burgs, a Burg centre, a Stift by the Burg |
+| **Tuch** | (6 players) | Weavers and dyers | Banner Burg streets, Burg squares and four Stifte | Banner Burg streets, corners, a square and a gate |
+
+No duchy has a special ability (removed in v0.6). They differ only in their decks.
 
 The seats in the table above are for the standard four-player game. Any 2 to 6 different duchies can play; see **Table sizes**.
 
@@ -96,20 +98,20 @@ Each duchy has a **home deck of 22 tiles** (same size, different mix) and a **Ma
 | Burg square | Burg, Burg, field, Burg | 2 | 2 | 1 | 1 |
 | Burg square with banner | Burg, Burg, field, Burg · banner | 1 | 0 | 0 | 0 |
 | Burg gate | Burg, Burg, road, Burg | 1 | 0 | 0 | 0 |
-| Burg corner | Burg, field, field, Burg | 1 | 2 | 1 | 2 |
+| Burg corner | Burg, field, field, Burg | 1 | 2 | 2 | 2 |
 | Burg corner with road | Burg, road, road, Burg | 1 | 0 | 1 | 0 |
 | Burg street | field, Burg, field, Burg | 1 | 1 | 0 | 1 |
-| Burg wall | Burg, field, field, field | 4 | 2 | 2 | 3 |
+| Burg wall | Burg, field, field, field | 4 | 2 | 4 | 3 |
 | Burg wall with road | Burg, road, field, road | 3 | 2 | 2 | 3 |
 | Burg wall with bend | Burg, field, road, road | 0 | 0 | 2 | 2 |
-| Road | road, field, road, field | 4 | 4 | 1 | 3 |
-| Waymarked road | road, field, road, field · badge | 0 | 0 | 4 | 0 |
-| Road bend | field, field, road, road | 2 | 5 | 2 | 3 |
-| Waymarked bend | field, field, road, road · badge | 0 | 0 | 3 | 0 |
+| Road | road, field, road, field | 4 | 4 | 2 | 3 |
+| Waymarked road | road, field, road, field · badge | 0 | 0 | 1 | 0 |
+| Road bend | field, field, road, road | 2 | 5 | 3 | 3 |
+| Waymarked bend | field, field, road, road · badge | 0 | 0 | 0 | 0 |
 | Junction | field, road, road, road · shrine | 1 | 1 | 0 | 1 |
 | Stift | field ×4 · Stift | 1 | 1 | 2 | 1 |
-| Stift with lane | field, field, road, field · Stift | 0 | 1 | 1 | 0 |
-| Open field | field ×4 | 0 | 1 | 0 | 2 |
+| Stift with lane | field, field, road, field · Stift | 0 | 1 | 0 | 0 |
+| Open field | field ×4 | 0 | 1 | 2 | 2 |
 | **Total** | | **22** | **22** | **22** | **22** |
 
 ### Markt piles
@@ -145,10 +147,10 @@ Each duchy has a **home deck of 22 tiles** (same size, different mix) and a **Ma
 ## A turn
 
 1. **Pick a pile, not a tile.** Choose one face-up tile from:
-   - the top of your home deck (Wein sees the top two and may take either),
+   - the top of your home deck,
    - your reserve tile, if you have one,
    - the top of any Markt pile you can reach (see Reach).
-2. **Swap (optional).** Once your own gap is closed, you may trade the tile you took (not a Markt tile) for the face-up top tile of another duchy's home deck. Your tile goes to the bottom of their deck. You pay **1 Zoll** (1 point) to that duchy, but only if that duchy has closed its gap. Salz collects 2; Hopfen pays nothing. One swap per turn (Forst: two).
+2. **Swap (optional).** Once your own gap is closed, you may trade the tile you took (not a Markt tile) for the face-up top tile of another duchy's home deck. Your tile goes to the bottom of their deck. Swapping is free. One swap per turn.
 3. **Place** the tile by edge shape (Burg to Burg, road to road, field to field) next to at least one tile in your **network** (see Reach), following the land rules:
    - **Your tiles** (your style, or a tile you swapped for) go on your own land or on any Vorland you reach.
    - **A swapped tile** may also go on the land of the duchy whose style it carries, anywhere you reach there.
@@ -176,11 +178,24 @@ Each duchy has a **home deck of 22 tiles** (same size, different mix) and a **Ma
 | Road | 1 per tile, +1 per waymark badge | same |
 | Stift | **7** when it and all 8 neighbours are filled | 1 per tile in its 3 × 3, at most 6 |
 | Field | (only at game end) | **3** per completed Burg it touches |
-| Zoll | 1 per swap into your duchy (Salz 2) | |
+| Zoll | **3** on top of the road's points when the road joins two or more Burgs | same |
+
+A road **joins** a Burg when one of its tiles also holds part of that Burg: a gate where the road ends, or a wall the road runs past. Roads through open fields earn no Zoll. The Zoll is the same for everyone and is paid once per road.
 
 Majority rules as in Glockenfels: most Wanderers on a feature scores it; ties all score in full.
 
 **Game end:** after 19 rounds, score unfinished features and fields. Highest score wins; ties share the win. Home tiles you never drew score nothing, so a Markt tile always costs you a home tile.
+
+## Zoll as a road reward (v0.6)
+
+Mark's changes of 2026-11-10, which replace parts of v0.4:
+
+- **No swap toll and no Markt fee.** Swapping and drawing from a reachable Markt pile are free (`swapFee: 0`, `marktFee: 0`).
+- **No duchy powers.** The old abilities remain as config options for experiments but are off.
+- **Zoll is now income from trade roads** (`zoll: 3`, `zollMode: 'flat'`). A road that joins two or more Burgs pays its holder 3.
+- **No cap on home points.** The award is off (`awardRatio: 0`).
+- Still on from v0.4 and v0.5: the Residenz bonus, the pact fee of 3, the three-cell gap and 19 rounds.
+- Forst's deck lost most waymarks and its Stift lane and gained Burg walls, a Burg corner and two fields. Without the powers its road deck won 40% of games.
 
 ## The award and the price of company (v0.4)
 

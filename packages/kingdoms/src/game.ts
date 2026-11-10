@@ -49,7 +49,7 @@ export type KAction =
 export type KEvent =
   | { type: 'placed'; tileKey: string; player: number }
   | { type: 'claimed'; tileKey: string; local: number; player: number }
-  | { type: 'scored'; featureId: number; kind: FeatureKind; players: number[]; points: number; complete: boolean; tiles: string[] }
+  | { type: 'scored'; featureId: number; kind: FeatureKind; players: number[]; points: number; zoll: number; complete: boolean; tiles: string[] }
   | { type: 'returned'; piece: KPiece }
   | { type: 'swap'; player: number; with: number; zoll: number }
   | { type: 'reserved'; player: number; tileId: string }
@@ -226,14 +226,14 @@ export interface Candidate {
 export function zollFor(s: KState, p: number, q: number): number {
   if (!s.gapClosed[q]) return 0;
   if (s.cfg.duchies[p].id === 'hopfen' && !s.cfg.powers.hopfenPaysZoll) return 0;
-  return s.cfg.zoll;
+  return s.cfg.swapFee;
 }
 
 /** What duchy q collects for one swap into it: Salz collects more than is paid (the Salzregal). */
 export function zollReceived(s: KState, p: number, q: number): number {
   if (!s.gapClosed[q]) return 0;
-  const base = s.cfg.duchies[p].id === 'hopfen' && !s.cfg.powers.hopfenPaysZoll ? 0 : s.cfg.zoll;
-  return s.cfg.duchies[q].id === 'salz' ? Math.max(base, s.cfg.zoll) * s.cfg.powers.salzZollFactor : base;
+  const base = s.cfg.duchies[p].id === 'hopfen' && !s.cfg.powers.hopfenPaysZoll ? 0 : s.cfg.swapFee;
+  return s.cfg.duchies[q].id === 'salz' ? Math.max(base, s.cfg.swapFee) * s.cfg.powers.salzZollFactor : base;
 }
 
 /** Swapping is the reward for connecting: your own gap must be closed (Tuch may swap from the start). */
@@ -401,6 +401,9 @@ function addTile(s: KState, tileId: string, x: number, z: number, rot: number, s
     tile.featureIds.push(id);
   }
   for (const [i, f] of a.features.entries()) if (f.kind === 'meadow') s.features[tile.featureIds[i]].touchesTowns = f.touchesTowns.map((t) => tile.featureIds[t]);
+  // A road joins every Burg that shares a tile with it (used for the Zoll).
+  const townIds = tile.featureIds.filter((_, i) => a.features[i].kind === 'town');
+  for (const [i, f] of a.features.entries()) if (f.kind === 'road') s.features[tile.featureIds[i]].touchesTowns = townIds.slice();
   s.board[key] = tile;
   for (let e = 0; e < 4; e++) {
     const n = tileAt(s, x + DX[e], z + DZ[e]);
@@ -520,6 +523,18 @@ export function residenzTiles(s: KState, keys: string[]) {
   return c;
 }
 
+/** Zoll for a road that joins `burgs` different Burgs: nothing for fewer than two. */
+export function zollForBurgs(s: KState, burgs: number): number {
+  if (burgs < 2 || !s.cfg.zoll) return 0;
+  return s.cfg.zollMode === 'perBurg' ? s.cfg.zoll * burgs : s.cfg.zoll;
+}
+
+/** How many different Burgs a road joins. */
+export function burgsOnRoad(s: KState, f: KFeature): number {
+  return new Set(f.touchesTowns.map((id) => find(s, id))).size;
+}
+
+/** Points for a feature, without the road Zoll (see zollForBurgs). */
 export function featureValue(s: KState, f: KFeature, complete: boolean): number {
   const sc = s.cfg.scoring;
   const n = f.tiles.length;
@@ -557,13 +572,16 @@ function scoreFeature(s: KState, f: KFeature, complete: boolean) {
   if (f.scored) return;
   f.scored = true;
   const winners = majority(f);
-  const points = featureValue(s, f, complete);
+  const base = featureValue(s, f, complete);
+  const zoll = f.kind === 'road' ? zollForBurgs(s, burgsOnRoad(s, f)) : 0;
+  const points = base + zoll;
   for (const p of winners) {
     s.players[p].score += points;
     s.players[p].byKind[f.kind] += points;
-    if (isHomeFor(s, f, p)) s.players[p].homePts += points; else s.players[p].foreignPts += points;
+    s.players[p].zollIn += zoll;
+    if (isHomeFor(s, f, p)) s.players[p].homePts += base; else s.players[p].foreignPts += base;
   }
-  if (winners.length) s.events.push({ type: 'scored', featureId: f.id, kind: f.kind, players: winners, points, complete, tiles: f.tiles.slice() });
+  if (winners.length) s.events.push({ type: 'scored', featureId: f.id, kind: f.kind, players: winners, points, zoll, complete, tiles: f.tiles.slice() });
   if (complete) {
     for (const piece of f.pieces) { s.players[piece.player].wanderers++; s.events.push({ type: 'returned', piece }); }
     f.pieces = [];
@@ -762,6 +780,8 @@ export interface PreviewFeature {
   complete: boolean;
   /** Meadow only: roots of Burgs it touches. */
   towns: number[];
+  /** Road only: how many different Burgs it would join. */
+  burgs: number;
 }
 
 /** How each local feature of a tile would look once placed here. */
@@ -811,8 +831,25 @@ export function preview(s: KState, tileId: string, x: number, z: number, rot: nu
       pieces.push(...gf.pieces);
       if (f.kind === 'meadow') for (const t of gf.touchesTowns) towns.push(find(s, t));
     }
+    let burgs = 0;
+    if (f.kind === 'road') {
+      // Burgs already on the road, plus the Burgs on this tile. A Burg on this tile that grows an old one counts once.
+      const merged = new Map<number, number>();
+      const fresh: number[] = [];
+      a.features.forEach((tf, k) => {
+        if (tf.kind !== 'town') return;
+        const rs = [...new Set(a.features.map((_, m) => m).filter((m) => g(m) === g(k)).flatMap((m) => [...joins[m].roots]))];
+        if (!rs.length) { fresh.push(-1 - g(k)); return; }
+        const rep = Math.min(...rs);
+        for (const r of rs) merged.set(r, rep);
+        fresh.push(rep);
+      });
+      const set = new Set<number>(fresh);
+      for (const r of roots) for (const t of s.features[r].touchesTowns) { const tr = find(s, t); set.add(merged.get(tr) ?? tr); }
+      burgs = set.size;
+    }
     const complete = f.kind === 'road' || f.kind === 'town' ? open === 0 : f.kind === 'monastery' ? neighbourCount(s, { x, z }) === 8 : false;
-    return { kind: f.kind, roots: [...roots], open, tiles, banner, badge, pieces, complete, towns };
+    return { kind: f.kind, roots: [...roots], open, tiles, banner, badge, pieces, complete, towns, burgs };
   });
 }
 

@@ -68,7 +68,7 @@ export interface DuchyDef {
 export const DUCHIES: DuchyDef[] = [
   {
     id: 'salz', name: 'Salz', theme: 'Urban density', colour: '#2f74c0',
-    power: 'Salzregal: collects double Zoll on every swap into Salz; the swapper pays only the normal Zoll.',
+    power: 'Deck: the most big Burg pieces.',
     home: [
       { tileId: 'burg-square', count: 2 }, { tileId: 'burg-square-banner', count: 1 },
       { tileId: 'burg-gate', count: 1 }, { tileId: 'burg-corner', count: 1 },
@@ -84,7 +84,7 @@ export const DUCHIES: DuchyDef[] = [
   },
   {
     id: 'wein', name: 'Wein', theme: 'Monks and contemplation', colour: '#d9482b',
-    power: 'Besinnung: sees the top two tiles of its home deck and may take either.',
+    power: 'Deck: Stifte and winding roads.',
     home: [
       { tileId: 'stift', count: 1 }, { tileId: 'stift-lane', count: 1 },
       { tileId: 'burg-edge', count: 2 }, { tileId: 'burg-edge-road', count: 2 },
@@ -99,14 +99,14 @@ export const DUCHIES: DuchyDef[] = [
   },
   {
     id: 'forst', name: 'Forst', theme: 'Traveller variety', colour: '#2e9b6b',
-    power: 'Waldläufer: may swap twice per turn.',
+    power: 'Deck: roads beside Burg walls, made for Zoll.',
     home: [
-      { tileId: 'road', count: 1 }, { tileId: 'road-badge', count: 4 },
-      { tileId: 'road-bend', count: 2 }, { tileId: 'road-bend-badge', count: 3 },
+      { tileId: 'road', count: 2 }, { tileId: 'road-badge', count: 1 },
+      { tileId: 'road-bend', count: 3 },
       { tileId: 'burg-edge-road', count: 2 }, { tileId: 'burg-edge-bend', count: 2 },
-      { tileId: 'burg-edge', count: 2 }, { tileId: 'burg-corner', count: 1 },
+      { tileId: 'burg-edge', count: 4 }, { tileId: 'burg-corner', count: 2 },
       { tileId: 'burg-corner-road', count: 1 }, { tileId: 'burg-square', count: 1 },
-      { tileId: 'stift-lane', count: 1 }, { tileId: 'stift', count: 2 },
+      { tileId: 'stift', count: 2 }, { tileId: 'field', count: 2 },
     ],
     markt: [
       { tileId: 'junction', count: 1 }, { tileId: 'burg-edge-junction', count: 3 }, { tileId: 'burg-corner-road', count: 2 },
@@ -114,7 +114,7 @@ export const DUCHIES: DuchyDef[] = [
   },
   {
     id: 'hopfen', name: 'Hopfen', theme: 'Rural peace and freedom', colour: '#f2b630',
-    power: 'Landfrieden: pays no Zoll.',
+    power: 'Deck: small Burgs among open fields.',
     home: [
       { tileId: 'burg-edge', count: 3 }, { tileId: 'burg-edge-road', count: 3 },
       { tileId: 'burg-edge-bend', count: 2 }, { tileId: 'burg-corner', count: 2 },
@@ -129,7 +129,7 @@ export const DUCHIES: DuchyDef[] = [
   },
   {
     id: 'erz', name: 'Erz', theme: 'Miners and smiths', colour: '#8a52c4',
-    power: 'Bergleute: starts with three extra Wanderers.',
+    power: 'Deck: sturdy Burgs with banners at the Markt.',
     home: [
       { tileId: 'burg-corner', count: 2 }, { tileId: 'burg-edge', count: 3 }, { tileId: 'burg-edge-road', count: 3 },
       { tileId: 'burg-square', count: 2 }, { tileId: 'burg-corner-road', count: 2 }, { tileId: 'burg-street', count: 1 },
@@ -143,7 +143,7 @@ export const DUCHIES: DuchyDef[] = [
   },
   {
     id: 'tuch', name: 'Tuch', theme: 'Weavers and dyers', colour: '#e27fb0',
-    power: 'Tuchhandel: may swap before closing its gap.',
+    power: 'Deck: bannered streets and Stifte.',
     home: [
       { tileId: 'burg-edge', count: 3 }, { tileId: 'burg-edge-road', count: 2 }, { tileId: 'burg-corner', count: 2 },
       { tileId: 'burg-street-banner', count: 2 }, { tileId: 'burg-square', count: 2 },

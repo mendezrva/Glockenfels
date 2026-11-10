@@ -3,13 +3,15 @@ import { chooseTurn, PROFILES } from '../src/bots';
 import { keyOf, layout, sectorOf, zoneOf } from '../src/board';
 import { buildConfig } from '../src/config';
 import {
-  apply, candidates, createGame, forcePlace, isLegal, league, legalTurns, marktAccess, MARKT, replay, resolve, tileAt, zollFor, zollReceived,
+  apply, candidates, createGame, forcePlace, isLegal, league, legalTurns, marktAccess, MARKT, replay, resolve, tileAt, zollFor, zollReceived, find, burgsOnRoad, zollForBurgs,
   type KAction, type KState,
 } from '../src/game';
 import { playGame } from '../src/sim';
 import { DUCHIES, deckSize, K_TILES } from '../src/tiles';
 
 const cfg = buildConfig();
+/** The optional swap fee and duchy powers, which are off by default. */
+const old = buildConfig({ swapFee: 1, powers: { salzZollFactor: 2, weinPeek: 2, forstSwaps: 2, hopfenPaysZoll: false, erzWanderers: 10, tuchEarlySwap: true } });
 
 /** Fills a duchy's gap with straight roads so its Vorland joins its Stammburg. */
 function closeGap(s: KState, p: number) {
@@ -111,9 +113,9 @@ describe('reach', () => {
   });
 });
 
-describe('swaps and Zoll', () => {
+describe('optional swap fee and powers', () => {
   it('charges Zoll only when the other duchy has closed its gap; Salz collects double; Hopfen never pays', () => {
-    const s = createGame(cfg, 6, 0);
+    const s = createGame(old, 6, 0);
     expect(zollFor(s, 1, 0)).toBe(0);
     closeGap(s, 0); closeGap(s, 1);
     expect(zollFor(s, 1, 0)).toBe(1);
@@ -123,7 +125,7 @@ describe('swaps and Zoll', () => {
     expect(zollReceived(s, 3, 0)).toBe(2);
   });
   it('lets Forst swap twice and Wein look two deep, nobody else', () => {
-    const s = createGame(cfg, 7, 0);
+    const s = createGame(old, 7, 0);
     expect(resolve(s, 2, { kind: 'home', depth: 0 }, [0])).toBeNull(); // gap still open
     closeGap(s, 0); closeGap(s, 2);
     expect(resolve(s, 2, { kind: 'home', depth: 0 }, [0, 1])).toBeNull(); // can't afford the Zoll
@@ -134,7 +136,7 @@ describe('swaps and Zoll', () => {
     expect(resolve(s, 0, { kind: 'home', depth: 1 }, [])).toBeNull();
   });
   it('moves the given tile to the bottom of the other deck and pays Zoll on apply', () => {
-    const s = createGame(cfg, 8, 0);
+    const s = createGame(old, 8, 0);
     closeGap(s, 0); closeGap(s, 1);
     s.players[0].score = 5;
     // Find a legal swap turn for player 0 (seat 0 moves first).
@@ -144,6 +146,26 @@ describe('swaps and Zoll', () => {
     apply(s, swapTurn);
     expect(s.decks[1][0]).toBe(give);
     expect(s.players[1].zollIn).toBe(1);
+  });
+});
+
+describe('Zoll', () => {
+  it('pays a road that joins two Burgs, and nothing for a road that joins one', () => {
+    const s = createGame(cfg, 9, 0);
+    // Two Burg gates facing each other with one road tile between them, far from everything else.
+    forcePlace(s, 'burg-gate', 30, 30, 0, 0);
+    forcePlace(s, 'road', 30, 31, 0, 0);
+    const lone = s.features[find(s, tileAt(s, 30, 31)!.featureIds.find((id) => s.features[id].kind === 'road')!)];
+    expect(burgsOnRoad(s, lone)).toBe(1);
+    expect(zollForBurgs(s, burgsOnRoad(s, lone))).toBe(0);
+    forcePlace(s, 'burg-gate', 30, 32, 2, 0);
+    const road = s.features[find(s, tileAt(s, 30, 31)!.featureIds.find((id) => s.features[id].kind === 'road')!)];
+    expect(road.tiles.length).toBe(3);
+    expect(road.open).toBe(0);
+    expect(burgsOnRoad(s, road)).toBe(2);
+    expect(zollForBurgs(s, 2)).toBe(cfg.zoll);
+    expect(cfg.swapFee).toBe(0);
+    expect(cfg.awardRatio).toBe(0);
   });
 });
 
@@ -192,7 +214,7 @@ describe('table sizes', () => {
     });
   }
   it('lets Tuch swap before closing its gap', () => {
-    const c = buildConfig({ duchyIds: ['salz', 'tuch', 'wein'] });
+    const c = buildConfig({ duchyIds: ['salz', 'tuch', 'wein'], swapFee: 1, powers: { tuchEarlySwap: true } });
     const s = createGame(c, 31, 1);
     expect(s.gapClosed[1]).toBe(false);
     s.players[1].score = 5;
