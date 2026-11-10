@@ -57,6 +57,8 @@ export interface KConfig {
     tuchEarlySwap: boolean;
   };
   swapsPerTurn: number;
+  /** Start with the Marktburg in the middle of the Markt. Off: the Markt starts empty. */
+  centreTile: boolean;
   /** Who you may swap with: any duchy, or only duchies in your Markt league. */
   swapTargets: 'any' | 'league';
   /** Where the tile you give away goes in the other deck. */
@@ -77,7 +79,7 @@ export interface KOptions extends Partial<Omit<KConfig, 'scoring' | 'powers' | '
 
 export const DEFAULT_CONFIG: KConfig = {
   wanderers: 7,
-  rounds: 19,
+  rounds: 25,
   gap: 3,
   marktRadius: 1,
   vorlandDepth: 3,
@@ -99,7 +101,8 @@ export const DEFAULT_CONFIG: KConfig = {
   pactFee: 3,
   powers: { salzZollFactor: 1, weinPeek: 1, weinMode: 'choose', forstSwaps: 1, hopfenPaysZoll: true, erzWanderers: 7, tuchEarlySwap: false },
   swapsPerTurn: 1,
-  marktPile: 6,
+  marktPile: 12,
+  centreTile: false,
   swapTargets: 'any',
   swapGivesTo: 'bottom',
   duchies: DUCHIES.slice(0, 4),

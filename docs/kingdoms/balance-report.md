@@ -1,4 +1,4 @@
-# Heimfall balance report (v0.6)
+# Heimfall balance report (v0.7)
 
 Run it yourself: `npm run sim -w packages/kingdoms -- 400` (add `--json`, or override any setting, for example `scoring.stiftComplete=9` or `deck.wein.home.stift=3`). Raw numbers for this report are in `balance-v0.2.json` (v0.1 numbers are in `balance-v0.1.json`).
 
@@ -20,6 +20,27 @@ What this shows:
 - **Duchy powers scale with the table.** Salz's Zoll needs many swappers, so Salz is weak at small tables; Forst's double swap is strongest with few rivals. Erz and Tuch were tuned at six and are a little strong at four.
 - **Wide tables link less.** With six, everyone links in 46% of games (four players: 66 to 74%). A 7 × 3 Markt was worse (24%), so the default wide Markt is 5 × 3.
 - Next tuning steps: a 5-player seat layout for the south seat, and per-table-size power values (for example Salz's Zoll factor) if the small-table numbers matter.
+
+## Empty Markt and longer games (v0.7)
+
+Mark asked for the centre tile to go and for 20 and 25 round games, to get more contested tiles per line. 200 games per variant, 400 for the two candidates, 4 players.
+
+| Rounds | Markt pile | Contested share | Markt tiles per game | First pact (round) | Everyone linked | Average score | Duchy wins (Salz, Wein, Forst, Hopfen) |
+|---|---|---|---|---|---|---|---|
+| 19 (v0.6, no centre) | 6 | 22% | 18 | 10.7 | 58% | 59 | 18 / 27 / 29 / 27 |
+| 20 (400 games) | 8 | 27% | 22 | 11.4 | 66% | 63 | 22 / 24 / 29 / 24 |
+| 22 | 10 | 29% | 27 | 12.5 | 75% | 68 | 18 / 25 / 33 / 25 |
+| **25 (adopted, 400 games)** | **12** | **33%** | **35** | **13.1** | **86%** | **76** | **24 / 20 / 33 / 23** |
+| 25 | 16 | 36% | 36 | 12.6 | 85% | 78 | 26 / 15 / 30 / 29 |
+
+Findings:
+
+- Each extra round past the home deck is a Markt tile, so contested share climbs about 1.4 points per round. 25 rounds puts a third of all points on contested land and links almost every table.
+- Scores spread more in long games (score spread 41 at 25 rounds against 28 at 19), which is good for a game with a single winner.
+- Forst wins most at 25 rounds (33%). Its Markt pile (junctions and Burg walls at a junction) earns Zoll well. Trimming its home deck to 3 Burg walls and 3 fields brought it to 28% in 300 games; not adopted yet.
+- Removing the centre tile alone changed little: the first Markt tile just takes its place.
+
+Raw output: `balance-v0.7.json`.
 
 ## Zoll as a road reward, no powers, no cap (v0.6)
 

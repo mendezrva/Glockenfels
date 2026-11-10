@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { chooseTurn, PROFILES } from '../src/bots';
-import { keyOf, layout, sectorOf, zoneOf } from '../src/board';
+import { layout, sectorOf, zoneOf } from '../src/board';
 import { buildConfig } from '../src/config';
 import {
   apply, candidates, createGame, forcePlace, isLegal, league, legalTurns, marktAccess, MARKT, replay, resolve, tileAt, zollFor, zollReceived, find, burgsOnRoad, zollForBurgs,
@@ -43,10 +43,11 @@ describe('tiles and decks', () => {
 });
 
 describe('setup', () => {
-  it('places the Marktplatz, four Stammburgen and each Vorland with the gap left open', () => {
+  it('leaves the Markt empty (or seats the Marktburg when asked), and places four Stammburgen and each Vorland with the gap left open', () => {
+    expect(tileAt(createGame(buildConfig({ centreTile: true }), 1), 0, 0)?.tileId).toBe('marktplatz');
     for (let seed = 1; seed <= 25; seed++) {
       const s = createGame(cfg, seed);
-      expect(tileAt(s, 0, 0)?.tileId).toBe('marktplatz');
+      expect(tileAt(s, 0, 0)).toBeUndefined();
       for (let p = 0; p < 4; p++) {
         const L = layout(cfg, p);
         expect(tileAt(s, ...L.home)?.tileId).toBe('stammburg');
@@ -96,8 +97,8 @@ describe('reach', () => {
   it('links two duchies through Markt tiles, transitively, with mutual reach and shared piles', () => {
     const s = createGame(cfg, 5, 0);
     for (const p of [0, 1, 2]) closeGap(s, p);
-    // Fill the Markt spokes from the Vorland anchors to the Marktplatz with crossroads.
-    const spoke = (p: number) => { const [ax, az] = layout(cfg, p).vorland[0]; const dx = Math.sign(-ax), dz = Math.sign(-az); for (let k = 1; k < Math.abs(ax) + Math.abs(az); k++) forcePlace(s, 'crossroads', ax + dx * k, az + dz * k, 0, MARKT); };
+    // Fill the Markt spokes from the Vorland anchors through the centre with crossroads.
+    const spoke = (p: number) => { const [ax, az] = layout(cfg, p).vorland[0]; const dx = Math.sign(-ax), dz = Math.sign(-az); for (let k = 1; k <= Math.abs(ax) + Math.abs(az); k++) forcePlace(s, 'crossroads', ax + dx * k, az + dz * k, 0, MARKT); };
     spoke(0); spoke(1);
     const linked = league(s, 0);
     if (linked.includes(1)) {
@@ -187,7 +188,7 @@ describe('full games', () => {
       const a = turns[(i * 31) % turns.length];
       expect(() => apply(s, a)).not.toThrow();
     }
-    expect(keyOf(0, 0) in s.board).toBe(true);
+    expect(Object.keys(s.board).length).toBeGreaterThan(20);
   });
 });
 

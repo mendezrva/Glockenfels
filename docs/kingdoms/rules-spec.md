@@ -1,4 +1,4 @@
-# Heimfall, rules spec (v0.6)
+# Heimfall, rules spec (v0.7)
 
 Heimfall is a fork of Glockenfels. It keeps square tiles, edge matching and Wanderers, and adds four rival duchies of a fractured Bavaria around a central Markt. It lives on the `kingdoms` branch and never merges into `main`; the original game is untouched.
 
@@ -8,7 +8,7 @@ Every number below is a setting in `packages/kingdoms/src/config.ts` or a deck l
 
 *Heimfall* is the old legal word for land falling home. The Duke of Bavaria-Glockenfels (an invented line of the Wittelsbach house) dies without a son. Under the house treaties his duchy reverts to the surviving lines, and every cousin has an equal right to it.
 
-- The **board** is the dead duke's land. The castle in the centre is his empty Residenz with its Markt.
+- The **board** is the dead duke's land. The empty ground in the centre, the Markt, is where his Residenz stood.
 - The **players** are his agnates. Each is already a duke with a line of their own, and each plants a seat (Stammburg) on the edge of his land.
 - The draft treaty gives each line a portion on paper: its **Vorland** by the Residenz, cut off from its seat by the **gap**.
 - The **Emperor forbids a feud** and issues his award after the last season. He confirms what each line holds and has built.
@@ -24,7 +24,7 @@ It is settled by development, diplomacy and deception, never by war. The rules b
 | Monastery | **Stift** |
 | Field | **Field**. A field's style (its duchy) is identity only, used for swaps and Zoll, never for points. |
 | Start tile | **Stammburg**, one per duchy |
-| Centre | **Marktburg** (a four-sided Burg), inside the **Markt** |
+| Centre | The **Markt**, empty at the start (the Marktburg is an option, off) |
 
 ## The duchies
 
@@ -45,7 +45,7 @@ Players rule one duchy each. Version 0.1 is for four players; three or two playe
 
 ## The board
 
-North is up. The Marktburg, a four-sided Burg with a banner, sits at the centre of a **3 × 3 Markt** (8 empty cells around it). Markt tiles next to it must show a Burg edge on that side. Each duchy owns a quarter of the board outside the Markt, cut along the diagonals.
+North is up. The **3 × 3 Markt** at the centre starts empty (9 cells); only Markt tiles may go there. The Marktburg, a four-sided Burg at the centre, is a config option (`centreTile`) that is off. Each duchy owns a quarter of the board outside the Markt, cut along the diagonals.
 
 ```
               Stammburg (Salz)
@@ -75,7 +75,7 @@ Two to six duchies can play. What has to stay true at every size:
 - **Every duchy gets the same shape of land:** the same Vorland T, the same two-cell gap and the same distance from its Stammburg to the Markt along its own spine. Only which side of the Markt it faces changes.
 - **Every Vorland touches the Markt,** so every duchy can link to every other through it.
 - **Land is split fairly:** each cell belongs to the duchy whose spine (the line from the Markt out to its Stammburg) is nearest. Cells exactly between two spines go to the duchy they lie clockwise of.
-- **Rounds do not depend on the table:** a duchy always has 17 home tiles after setup and the game is 19 rounds at any size. Bigger tables simply take longer.
+- **Rounds do not depend on the table:** a duchy always has 17 home tiles after setup and the game is 25 rounds at any size, so at least 8 turns per player come from the Markt piles or the reserve. Bigger tables simply take longer.
 
 | Duchies | Markt | Seats |
 | --- | --- | --- |
@@ -134,7 +134,7 @@ Each duchy has a **home deck of 22 tiles** (same size, different mix) and a **Ma
 
 ## Setup
 
-1. Place the Marktburg (a four-sided Burg) at the centre.
+1. Leave the Markt empty.
 2. Each duchy places its Stammburg with its road pointing at the Markt.
 3. Shuffle each home deck and each Markt pile separately.
 4. **Vorland, drawn at random.** Each duchy fills its five Vorland slots in order: the cell beside the Markt, the cell behind it, the middle of the crossbar (facing the gap), then the two ends of the crossbar. For each slot, draw from the top of that duchy's deck and place the tile in the rotation that fits:
@@ -142,7 +142,7 @@ Each duchy has a **home deck of 22 tiles** (same size, different mix) and a **Ma
    - on the gap-side slot, prefer a road pointing home,
    - if the tile fits nowhere, it goes to a **one-tile reserve slot** and the next tile is drawn; the reserve tile is tried first at the next slot; if the reserve is already full, the tile goes to the bottom of the deck.
    - At the end of setup any reserve tile goes to the bottom of the deck. Nothing scores during setup.
-5. Each duchy now has 17 home tiles left. The game lasts **19 rounds**, two more than the home deck. The last two turns need a Markt tile or a reserve tile, otherwise you pass.
+5. Each duchy now has 17 home tiles left. The game lasts **25 rounds**, eight more than the home deck, so at least eight of your turns use Markt tiles or your reserve. Each Markt pile holds 12 tiles (the duchy's Markt list, repeated).
 
 ## A turn
 
@@ -184,7 +184,14 @@ A road **joins** a Burg when one of its tiles also holds part of that Burg: a ga
 
 Majority rules as in Glockenfels: most Wanderers on a feature scores it; ties all score in full.
 
-**Game end:** after 19 rounds, score unfinished features and fields. Highest score wins; ties share the win. Home tiles you never drew score nothing, so a Markt tile always costs you a home tile.
+**Game end:** after 25 rounds, score unfinished features and fields. Highest score wins; ties share the win. Home tiles you never drew score nothing, so a Markt tile always costs you a home tile.
+
+## Empty Markt and 25 rounds (v0.7)
+
+Mark's changes of 2026-11-10:
+
+- **No centre tile.** The Markt starts as nine empty cells (`centreTile: false`). The first Markt tile placed there may be anything.
+- **25 rounds** (`rounds: 25`) with **Markt piles of 12** (`marktPile: 12`). Home decks are unchanged at 17 tiles after setup, so every player plays at least 8 Markt or reserve tiles. Mark's aim: more contested tiles per line.
 
 ## Zoll as a road reward (v0.6)
 

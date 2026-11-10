@@ -494,9 +494,13 @@ export function createGame(cfg: KConfig, seed: number, first = 0): KState {
   const expand = (d: { tileId: string; count: number }[]) => d.flatMap((e) => Array(e.count).fill(e.tileId) as string[]);
   for (const d of cfg.duchies) {
     s.decks.push(shuffleInPlace(s, expand(d.home)));
-    s.markt.push(shuffleInPlace(s, expand(d.markt)).slice(0, cfg.marktPile));
+    // The Markt list repeats until the pile is full, so a pile can be bigger than the list.
+    const list = expand(d.markt);
+    const pile: string[] = [];
+    while (pile.length < cfg.marktPile) pile.push(...list);
+    s.markt.push(shuffleInPlace(s, pile).slice(0, cfg.marktPile));
   }
-  addTile(s, 'marktplatz', 0, 0, 0, MARKT, -1);
+  if (cfg.centreTile) addTile(s, 'marktplatz', 0, 0, 0, MARKT, -1);
   for (let p = 0; p < n; p++) {
     const L = layout(cfg, p);
     addTile(s, 'stammburg', L.home[0], L.home[1], L.homeRot, p, -1);
