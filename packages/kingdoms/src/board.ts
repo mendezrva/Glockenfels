@@ -42,7 +42,7 @@ export function boardShape(cfg: KConfig): BoardShape {
     case 4: return { mx: r, mz: r, seats: [seat(0), seat(1), seat(2), seat(3)] };
     case 5: return { mx: w, mz: r, seats: [seat(0, -w), seat(0, w), seat(1), seat(2), seat(3)] };
     case 6: return { mx: w, mz: r, seats: [seat(0, -w), seat(0, w), seat(1), seat(2, -w), seat(2, w), seat(3)] };
-    default: throw new Error(`Tiny Kingdoms seats 2 to 6 duchies, not ${n}`);
+    default: throw new Error(`Heimfall seats 2 to 6 duchies, not ${n}`);
   }
 }
 

@@ -1,5 +1,5 @@
 /**
- * Tiny Kingdoms rules engine. Four duchies, a fractured central Markt, earned gaps, Markt piles,
+ * Heimfall rules engine. Four duchies, a fractured central Markt, earned gaps, Markt piles,
  * reach through a transitive Markt league, swaps and Zoll. State is plain JSON-safe data and every
  * change goes through `apply`, so a seed plus the action log replays a game exactly.
  */

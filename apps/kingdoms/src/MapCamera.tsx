@@ -1,5 +1,5 @@
 /**
- * Map-style camera for Tiny Kingdoms. Touch works like a maps app: one finger drags the board,
+ * Map-style camera for Heimfall. Touch works like a maps app: one finger drags the board,
  * two fingers pinch to zoom, drag to pan and twist to turn. The viewing angle (how far the camera
  * leans from straight down) is not a gesture; it comes from settings and stays put while you move.
  * On a desktop the left button drags, the right button turns and the wheel zooms.

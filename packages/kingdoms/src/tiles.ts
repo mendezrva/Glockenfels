@@ -1,5 +1,5 @@
 /**
- * Tiny Kingdoms tile set: the four duchy home decks and their Markt piles.
+ * Heimfall tile set: the four duchy home decks and their Markt piles.
  * Tile shapes reuse the Glockenfels edge model (town edges are Burgs, monasteries are Stifte,
  * meadows are fields). Placement is by edge shape only; style (which duchy a tile belongs to)
  * is identity, never points.

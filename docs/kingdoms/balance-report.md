@@ -1,4 +1,4 @@
-# Tiny Kingdoms balance report (v0.2)
+# Heimfall balance report (v0.2)
 
 Run it yourself: `npm run sim -w packages/kingdoms -- 400` (add `--json`, or override any setting, for example `scoring.stiftComplete=9` or `deck.wein.home.stift=3`). Raw numbers for this report are in `balance-v0.2.json` (v0.1 numbers are in `balance-v0.1.json`).
 

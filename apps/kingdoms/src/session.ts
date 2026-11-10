@@ -1,4 +1,4 @@
-/** Local game state for Tiny Kingdoms: the engine state, the seat list, saving and undo. */
+/** Local game state for Heimfall: the engine state, the seat list, saving and undo. */
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { apply, buildConfig, createGame, replay, type DuchyId, type KAction, type KEvent, type KState } from '@glockenfels/kingdoms';
 import { setTable } from './colors';

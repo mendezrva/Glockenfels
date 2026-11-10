@@ -1,4 +1,4 @@
-/** Tiny Kingdoms: a setup screen (how many duchies, which ones, who rules them), then the game. */
+/** Heimfall: a setup screen (how many duchies, which ones, who rules them), then the game. */
 import { useState } from 'react';
 import { DUCHIES, type DuchyId } from '@glockenfels/kingdoms';
 import { Game } from './Game';
@@ -51,10 +51,10 @@ export default function App() {
     <div className="k-setup">
       <div className="k-setup-card">
         <div className="rauten" />
-        <h1>Tiny Kingdoms</h1>
-        <p className="k-sub">The old king is dead and his realm lies in pieces. Rebuild the roads, link your duchy through the Markt, and earn the crown before the last bell.</p>
+        <h1>Heimfall</h1>
+        <p className="k-sub">The Duke of Bavaria-Glockenfels is dead and leaves no son. By the law of his house, his land falls home to his cousins. Build, bargain and outwit them before the Emperor makes his award.</p>
         <div className="k-count">
-          <span>Duchies</span>
+          <span>Lines of the house</span>
           <div className="seg" role="group" aria-label="Number of duchies">
             {[2, 3, 4, 5, 6].map((n) => (
               <button key={n} type="button" aria-pressed={setup.count === n} onClick={() => setSetup((o) => ({ ...o, count: n }))}>{n}</button>

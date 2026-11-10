@@ -1,5 +1,5 @@
 /**
- * Tiny Kingdoms pass-and-play: the 3D board (reusing the Glockenfels tiles and scene), duchy
+ * Heimfall pass-and-play: the 3D board (reusing the Glockenfels tiles and scene), duchy
  * territory, and a touch-first turn dock: pick a pile, optionally swap, tap a spot, turn, choose a
  * Wanderer, confirm.
  */
@@ -507,7 +507,8 @@ function HelpCard({ onClose, s }: { onClose: () => void; s: KState }) {
     <div className="curtain soft" onClick={onClose}>
       <div className="curtain-card rules" onClick={(e) => e.stopPropagation()}>
         <button type="button" className="k-close" aria-label="Close" onClick={onClose}>✕</button>
-        <h2>Tiny Kingdoms</h2>
+        <h2>Heimfall</h2>
+        <p className="k-lore">The Duke is dead without a son, and his land falls home to his cousins. The board is his duchy. The castle in the centre is his empty Residenz. The Emperor forbids a feud and will confirm what each line holds after {s.cfg.rounds} seasons.</p>
         <ul>
           <li><b>Pick a pile.</b> <span>Your home deck, your reserve, or any Markt pile you can reach. The top tile is face up.</span></li>
           <li><b>Close your gap.</b> <span>Build from your Stammburg to your Vorland by the Markt. That opens your Markt pile and lets you swap.</span></li>

@@ -1,12 +1,23 @@
-# Glockenfels: Tiny Kingdoms, rules spec (v0.1)
+# Heimfall, rules spec (v0.1)
 
-Tiny Kingdoms is a fork of Glockenfels. It keeps square tiles, edge matching and Wanderers, and adds four rival duchies of a fractured Bavaria around a central Markt. It lives on the `kingdoms` branch and never merges into `main`; the original game is untouched.
+Heimfall is a fork of Glockenfels. It keeps square tiles, edge matching and Wanderers, and adds four rival duchies of a fractured Bavaria around a central Markt. It lives on the `kingdoms` branch and never merges into `main`; the original game is untouched.
 
 Every number below is a setting in `packages/kingdoms/src/config.ts` or a deck list in `packages/kingdoms/src/tiles.ts`. The values here are the tuned defaults from the balance simulator (see `balance-report.md`).
 
+## The story
+
+*Heimfall* is the old legal word for land falling home. The Duke of Bavaria-Glockenfels (an invented line of the Wittelsbach house) dies without a son. Under the house treaties his duchy reverts to the surviving lines, and every cousin has an equal right to it.
+
+- The **board** is the dead duke's land. The castle in the centre is his empty Residenz with its Markt.
+- The **players** are his agnates. Each is already a duke with a line of their own, and each plants a seat (Stammburg) on the edge of his land.
+- The draft treaty gives each line a portion on paper: its **Vorland** by the Residenz, cut off from its seat by the **gap**.
+- The **Emperor forbids a feud** and issues his award after the last season. He confirms what each line holds and has built.
+
+It is settled by development, diplomacy and deception, never by war. The rules below do not yet include the proposed extinct lines, disputed land, clause cards or pacts; see the review doc linked from the README.
+
 ## Names
 
-| Glockenfels | Tiny Kingdoms |
+| Glockenfels | Heimfall |
 | --- | --- |
 | Town | **Burg**. Every Burg edge matches every other Burg edge, whoever's style it is. |
 | Road | **Road**. Some roads carry a waymark badge. |

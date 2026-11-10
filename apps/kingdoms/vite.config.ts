@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// Tiny Kingdoms reuses the Glockenfels 3D tile builder, scene and interface styles from apps/client
+// Heimfall reuses the Glockenfels 3D tile builder, scene and interface styles from apps/client
 // (through the @gf alias) without changing them.
 export default defineConfig({
   base: './',

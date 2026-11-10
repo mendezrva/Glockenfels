@@ -1,4 +1,4 @@
-/** Every tunable number of Tiny Kingdoms. The balance simulator sweeps these. */
+/** Every tunable number of Heimfall. The balance simulator sweeps these. */
 import { DUCHIES, type DeckEntry, type DuchyDef } from './tiles';
 
 export interface KConfig {

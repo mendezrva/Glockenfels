@@ -1,4 +1,4 @@
-/* Tiny Kingdoms additions on top of the Glockenfels game styles. */
+/* Heimfall additions on top of the Glockenfels game styles. */
 .k-setup { min-height: 100%; overflow-y: auto; display: grid; place-items: center; padding: calc(16px + env(safe-area-inset-top, 0px)) 16px 24px; background: linear-gradient(180deg, #dde9f3, #cfe0c6); }
 .k-setup-card { width: min(720px, 100%); background: var(--paper); border-radius: 24px; border: 1px solid var(--line); box-shadow: 0 5px 0 var(--soil), 0 20px 50px rgba(40, 32, 20, 0.22); padding: 0 20px 20px; display: grid; gap: 14px; overflow: hidden; }
 .k-setup-card .rauten { margin: 0 -20px; }
@@ -96,3 +96,7 @@
 }
 .k-actions .k-undo { margin: 0; width: 46px; min-height: 46px; font-size: 20px; }
 .curtain-card > button.k-close { min-width: 44px; width: 44px; height: 44px; min-height: 44px; padding: 0; justify-self: end; }
+.k-lore { margin: 0; color: var(--muted); font-size: 14px; }
+/* The page body never scrolls (the game is one screen), so the setup screen scrolls inside itself. */
+.k-setup { position: absolute; inset: 0; min-height: 0; height: auto; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y; place-items: start center; padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px)); }
+#root { position: relative; }

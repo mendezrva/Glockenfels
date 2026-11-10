@@ -1,4 +1,6 @@
-# Glockenfels: Tiny Kingdoms (fork)
+# Heimfall (fork)
+
+Formerly "Tiny Kingdoms" (the package and app folders keep the name `kingdoms`). Story and rules review: https://claude.ai/artifact/ErKWLc5z2XeDDnZCrkJm46
 
 A separate game built on Glockenfels: two to six duchies, an earned gap to a central Markt, Markt piles, a transitive Markt league, swaps and Zoll.
 
@@ -16,7 +18,7 @@ npm run sim -- 200 --json zoll=2       # try a setting
 
 ## 3D client
 
-`apps/kingdoms` is the Tiny Kingdoms client. It reuses the Glockenfels tile builder, scene, Wanderers and interface styles from `apps/client` through a `@gf` import alias, without changing them.
+`apps/kingdoms` is the Heimfall client. It reuses the Glockenfels tile builder, scene, Wanderers and interface styles from `apps/client` through a `@gf` import alias, without changing them.
 
 ```
 npm run dev:kingdoms      # local dev server
