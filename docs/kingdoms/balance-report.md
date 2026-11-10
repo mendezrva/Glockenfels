@@ -1,6 +1,8 @@
-# Tiny Kingdoms balance report (v0.1)
+# Tiny Kingdoms balance report (v0.2)
 
-Run it yourself: `npm run sim -w packages/kingdoms -- 400` (add `--json`, or override any setting, for example `scoring.stiftComplete=9` or `deck.wein.home.stift=3`). Raw numbers for this report are in `balance-v0.1.json`.
+Run it yourself: `npm run sim -w packages/kingdoms -- 400` (add `--json`, or override any setting, for example `scoring.stiftComplete=9` or `deck.wein.home.stift=3`). Raw numbers for this report are in `balance-v0.2.json` (v0.1 numbers are in `balance-v0.1.json`).
+
+**v0.2 board (2026-11-10):** the centre is a four-sided Burg (the Marktburg), each Vorland is a 1-1-3 T (one tile facing the Markt, one behind, a crossbar of three facing home, two empty cells before the Stammburg), and the game lasts 17 rounds, one per home tile left after setup. The new board pushed Forst down to 13.5% and Wein up to 36%, so Forst's deck got more waymarked roads and a second Stift, its Markt pile swapped crossroads for Burg-edged tiles that can sit next to the Marktburg, and Wein lost one Stift with lane.
 
 ## How it was measured
 
@@ -17,24 +19,24 @@ Run it yourself: `npm run sim -w packages/kingdoms -- 400` (add `--json`, or ove
 
 | Target | Result | Status |
 | --- | --- | --- |
-| Each duchy wins about 25% | Salz 23.8%, Wein 24.5%, Forst 25.7%, Hopfen 26.1% | Met |
-| Average score per duchy close together | 55.2, 55.3, 55.4, 55.9 | Met |
-| Balanced bot slightly best | Wins per seat: balanced 36.8%, reacher 22.5%, cultivator 3.9% | Met (balanced is clearly best, not just slightly) |
-| Neither pure style beats the other clearly | Reachers beat cultivators 81% to 19% | Dropped (see decisions) |
-| About 55% home points, 45% foreign | 66% home, 34% foreign | Short |
-| Dead tiles under 2% | Under 0.1% (none seen in 400 games) | Met |
-| Everyone actively expands | 96% of duchies close their gap (on average in round 4 or 5); 92% join a league; in 81% of games all four are linked | Met |
+| Each duchy wins about 25% | Salz 25.0%, Wein 24.8%, Forst 23.5%, Hopfen 26.8% | Met |
+| Average score per duchy close together | 53.9, 54.2, 55.5, 55.1 | Met |
+| Balanced bot best | Wins per seat: balanced 36.8%, reacher 24.5%, cultivator 1.9% | Met |
+| Mixing beats a pure home-builder | Reachers beat cultivators 84% to 16% | Met (decided 2026-11-10) |
+| About 55% home points, 45% foreign | 75% home, 25% foreign (v0.1: 66/34) | Short |
+| Dead tiles under 2% | None seen in 400 games | Met |
+| Everyone actively expands | 99% of duchies close their gap (on average in round 3 or 4); 81% join a league; in 66% of games all four are linked | Met |
 
-Other numbers per game: 18 swaps, 15 Markt tiles placed, 14 points of Zoll. Average score 55, with a 26-point gap between first and last.
+Other numbers per game: 15 swaps, 19 Markt tiles placed, 13 points of Zoll. Average score 55, with a 22-point gap between first and last.
 
 **Where points come from (balanced bots):**
 
 | | Burgs | Roads | Stifte | Fields |
 | --- | --- | --- | --- | --- |
-| Salz | 21 | 12 | 8 | 9 |
-| Wein | 17 | 14 | 17 | 8 |
-| Forst | 15 | 20 | 13 | 11 |
-| Hopfen | 18 | 15 | 10 | 10 |
+| Salz | 25 | 10 | 8 | 7 |
+| Wein | 18 | 13 | 17 | 7 |
+| Forst | 17 | 22 | 11 | 8 |
+| Hopfen | 19 | 15 | 9 | 9 |
 
 Each duchy wins through its theme: Salz through Burgs, Wein through Stifte, Forst through roads, Hopfen through Burgs and fields.
 
@@ -56,6 +58,8 @@ The extremes lose. A pure reacher wins about 1 game in 5, and a pure cultivator 
 | Salz collects double Zoll without charging the swapper double | Salz 10% | 19% |
 | Salz deck: more Burg walls, a second Stift, fewer three-edge Burgs | Salz 19% | 23% |
 | Unfinished Stifte capped below a finished one; Stift 7 | A nearly finished Stift was worth more than a finished one | Duchies 24 to 26% |
+| v0.2 board: Marktburg centre, 1-1-3 Vorland T, 17 rounds | Duchies 24 to 26% | Forst 13.5%, Wein 36.3%, 75% home points |
+| Forst: more waymarked roads, a second Stift, Burg-edged Markt tiles instead of crossroads; Wein: one Stift with lane fewer | Forst 13.5%, Wein 36.3% | Duchies 23.5 to 27% |
 
 ## Knobs and what they did
 
@@ -76,4 +80,4 @@ The extremes lose. A pure reacher wins about 1 game in 5, and a pure cultivator 
 
 ## Open questions
 
-1. **Is 66/34 home/foreign close enough to 55/45?** Getting closer needs a bigger shared area, which so far has unbalanced the duchies. Balanced bots leaning 60% or 74% home win equally, so this is a style range rather than a requirement.
+1. **Is 75/25 home/foreign close enough to 55/45?** The longer v0.2 Vorland and the Burg centre made home building stronger (it was 66/34). Getting closer needs a bigger or more rewarding shared area, which so far has unbalanced the duchies. Balanced bots leaning 60% or 74% home win equally, so this is a style range rather than a requirement.

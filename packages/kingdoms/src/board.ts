@@ -1,5 +1,5 @@
 /**
- * Board geometry. North is -z. The Marktplatz sits at the origin inside a square Markt zone.
+ * Board geometry. North is -z. The Marktburg sits at the origin inside a square Markt zone.
  * Each duchy owns a quarter of the board (its sector). The rings just outside the Markt are the
  * Vorland band; everything further out is Stammland.
  */
@@ -38,6 +38,8 @@ export interface DuchyLayout {
   homeRot: number;
   /** Setup slots for the preplaced Vorland, in placement order. The first is the anchor. */
   vorland: [number, number][];
+  /** Index in `vorland` of the slot on the gap side (the middle of the T's crossbar). */
+  gapSide: number;
   /** Edge of the gap-side Vorland slot that faces home, and the cells of the straight gap. */
   gapEdge: number;
   gapCells: [number, number][];
@@ -46,9 +48,12 @@ export interface DuchyLayout {
 export function layout(cfg: KConfig, d: number): DuchyLayout {
   const inner = cfg.marktRadius + 1;
   const outer = cfg.marktRadius + cfg.vorlandDepth;
-  const canon: [number, number][] = [[0, -inner]];
-  for (let r = inner + 1; r <= outer; r++) canon.push([0, -r]);
-  canon.push([-1, -inner], [1, -inner]);
+  // A T pointing at the Markt: a stem from the Markt edge out to the outer ring, then a three-wide
+  // crossbar on the outer ring facing home (1-1-3 with the default depth of 3).
+  const canon: [number, number][] = [];
+  for (let r = inner; r <= outer; r++) canon.push([0, -r]);
+  const gapSide = canon.length - 1;
+  canon.push([-1, -outer], [1, -outer]);
   const homeZ = -(outer + cfg.gap + 1);
   const gap: [number, number][] = [];
   for (let z = -(outer + 1); z > homeZ; z--) gap.push([0, z]);
@@ -56,6 +61,7 @@ export function layout(cfg: KConfig, d: number): DuchyLayout {
     home: rotateCell(0, homeZ, d),
     homeRot: (1 + d) % 4,
     vorland: canon.map(([x, z]) => rotateCell(x, z, d)),
+    gapSide,
     gapEdge: d % 4,
     gapCells: gap.map(([x, z]) => rotateCell(x, z, d)),
   };

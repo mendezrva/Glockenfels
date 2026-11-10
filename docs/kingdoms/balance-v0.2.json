@@ -1,0 +1,61 @@
+{
+  "games": 400,
+  "duchyWin": {
+    "Salz": 25,
+    "Wein": 24.8,
+    "Forst": 23.5,
+    "Hopfen": 26.8
+  },
+  "duchyScore": {
+    "Salz": 53.9,
+    "Wein": 54.2,
+    "Forst": 55.5,
+    "Hopfen": 55.1
+  },
+  "profileWinPerSeat": {
+    "cultivator": 1.9,
+    "reacher": 24.5,
+    "balanced": 36.8
+  },
+  "headToHead": {
+    "cultivator": 15.8,
+    "reacher": 84.2
+  },
+  "homeShare": 75,
+  "deadRate": 0,
+  "gapClosedRate": 99.2,
+  "gapTurnAvg": 3.7,
+  "linkedRate": 81.1,
+  "everyoneLinkedRate": 66.3,
+  "swapsPerGame": 15.2,
+  "marktPerGame": 19.1,
+  "zollPerGame": 12.7,
+  "duchyKinds": {
+    "Salz": {
+      "town": 24.5,
+      "road": 9.9,
+      "monastery": 7.5,
+      "meadow": 7.1
+    },
+    "Wein": {
+      "town": 17.7,
+      "road": 13.4,
+      "monastery": 17.3,
+      "meadow": 6.5
+    },
+    "Forst": {
+      "town": 16.7,
+      "road": 21.9,
+      "monastery": 11.1,
+      "meadow": 7.7
+    },
+    "Hopfen": {
+      "town": 19,
+      "road": 15.1,
+      "monastery": 8.9,
+      "meadow": 9.4
+    }
+  },
+  "avgScore": 54.7,
+  "scoreSpread": 22.3
+}

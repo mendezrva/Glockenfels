@@ -13,7 +13,7 @@ Every number below is a setting in `packages/kingdoms/src/config.ts` or a deck l
 | Monastery | **Stift** |
 | Field | **Field**. A field's style (its duchy) is identity only, used for swaps and Zoll, never for points. |
 | Start tile | **Stammburg**, one per duchy |
-| Centre | **Marktplatz**, inside the **Markt** |
+| Centre | **Marktburg** (a four-sided Burg), inside the **Markt** |
 
 ## The four duchies
 
@@ -21,28 +21,33 @@ Every number below is a setting in `packages/kingdoms/src/config.ts` or a deck l
 | --- | --- | --- | --- | --- | --- |
 | **Salz** | North | Urban density | Most three-edge Burgs, plus Burg walls to close them | Banner caps and corners that finish big Burgs, the maypole centre | **Salzregal:** collects double Zoll on every swap into Salz. The swapper pays the normal Zoll; even Hopfen's swaps pay Salz. |
 | **Wein** | East | Monks and contemplation | Most Stifte | Stifte with a road exit, plus a junction | **Besinnung:** sees the top two tiles of its home deck and may take either; the other stays on top. |
-| **Forst** | South | Traveller variety | Waymarked roads (+1 each), no junctions | Junctions and crossroads, Burg walls at a junction | **Waldläufer:** may swap twice per turn. |
+| **Forst** | South | Traveller variety | Waymarked roads (+1 each), no junctions | Junctions, Burg walls at a junction, Burg corners with road | **Waldläufer:** may swap twice per turn. |
 | **Hopfen** | West | Rural peace and freedom | Small Burgs by open fields | Field gates: Burg corners and walls with roads | **Landfrieden:** pays no Zoll. |
 
 Players rule one duchy each. Version 0.1 is for four players; three or two players leave a duchy empty, which the engine supports but the simulator has not tuned yet.
 
 ## The board
 
-North is up. The Marktplatz sits at the centre of a **3 × 3 Markt** (8 empty cells around it). Each duchy owns a quarter of the board outside the Markt, cut along the diagonals.
+North is up. The Marktburg, a four-sided Burg with a banner, sits at the centre of a **3 × 3 Markt** (8 empty cells around it). Markt tiles next to it must show a Burg edge on that side. Each duchy owns a quarter of the board outside the Markt, cut along the diagonals.
 
 ```
               Stammburg (Salz)
-                  │  gap: 2 empty cells
-              Vorland ring 2
-              Vorland ring 1
- Hopfen ── Vorland  [ Markt ]  Vorland ── Wein
-              Vorland
-                  │
+                  .   gap: 2 empty cells
+                  .
+               V  V  V      Vorland ring 3 (crossbar)
+                  V         Vorland ring 2
+                  V         Vorland ring 1 (faces the Markt)
+ Hopfen ...  Vorland  [ Markt ]  Vorland ... Wein
+                  V
+                  V
+               V  V  V
+                  .
+                  .
               Stammburg (Forst)
 ```
 
-- **Vorland:** the two rings just outside the Markt. Each duchy's Vorland is preplaced at setup.
-- **Stammland:** everything further out. The Stammburg sits 2 empty cells beyond the outer Vorland tile (the **gap**).
+- **Vorland:** the three rings just outside the Markt. Each duchy's Vorland is a preplaced T of five tiles, shaped 1-1-3: one tile facing the Markt, one behind it, and a crossbar of three facing home.
+- **Stammland:** everything further out. The Stammburg sits 2 empty cells beyond the middle of the crossbar (the **gap**).
 - The Markt holds only Markt tiles. Stammland never holds Markt tiles.
 
 ## Decks
@@ -62,14 +67,14 @@ Each duchy has a **home deck of 22 tiles** (same size, different mix) and a **Ma
 | Burg wall | Burg, field, field, field | 4 | 2 | 2 | 4 |
 | Burg wall with road | Burg, road, field, road | 3 | 2 | 2 | 3 |
 | Burg wall with bend | Burg, field, road, road | 0 | 0 | 2 | 2 |
-| Road | road, field, road, field | 3 | 4 | 3 | 3 |
-| Waymarked road | road, field, road, field · badge | 0 | 0 | 2 | 0 |
-| Road bend | field, field, road, road | 2 | 4 | 3 | 2 |
-| Waymarked bend | field, field, road, road · badge | 0 | 0 | 2 | 0 |
+| Road | road, field, road, field | 3 | 4 | 1 | 3 |
+| Waymarked road | road, field, road, field · badge | 0 | 0 | 4 | 0 |
+| Road bend | field, field, road, road | 2 | 5 | 2 | 2 |
+| Waymarked bend | field, field, road, road · badge | 0 | 0 | 3 | 0 |
 | Junction | field, road, road, road · shrine | 1 | 1 | 0 | 1 |
-| Stift | field ×4 · Stift | 2 | 1 | 1 | 1 |
-| Stift with lane | field, field, road, field · Stift | 0 | 2 | 1 | 0 |
-| Open field | field ×4 | 0 | 1 | 1 | 2 |
+| Stift | field ×4 · Stift | 2 | 1 | 2 | 1 |
+| Stift with lane | field, field, road, field · Stift | 0 | 1 | 1 | 0 |
+| Open field | field ×4 | 0 | 1 | 0 | 2 |
 | **Total** | | **22** | **22** | **22** | **22** |
 
 ### Markt piles
@@ -82,10 +87,9 @@ Each duchy has a **home deck of 22 tiles** (same size, different mix) and a **Ma
 | Burg centre with maypole | Burg ×4 · banner | 1 | 0 | 0 | 0 |
 | Stift by the Burg | Burg, field, road, field · Stift | 0 | 2 | 0 | 0 |
 | Stift at the crossing | field, road, road, road · Stift | 0 | 1 | 0 | 0 |
-| Junction | field, road, road, road · shrine | 0 | 1 | 2 | 0 |
-| Crossroads | road ×4 · shrine | 0 | 0 | 2 | 0 |
-| Burg wall at a junction | Burg, road, road, road · shrine | 0 | 0 | 2 | 0 |
-| Burg corner with road | Burg, road, road, Burg | 0 | 1 | 0 | 2 |
+| Junction | field, road, road, road · shrine | 0 | 1 | 1 | 0 |
+| Burg wall at a junction | Burg, road, road, road · shrine | 0 | 0 | 3 | 0 |
+| Burg corner with road | Burg, road, road, Burg | 0 | 1 | 2 | 2 |
 | Burg wall with road | Burg, road, field, road | 0 | 1 | 0 | 1 |
 | Burg wall with bend | Burg, field, road, road | 0 | 0 | 0 | 1 |
 | Burg gate | Burg, Burg, road, Burg | 0 | 0 | 0 | 1 |
@@ -93,15 +97,15 @@ Each duchy has a **home deck of 22 tiles** (same size, different mix) and a **Ma
 
 ## Setup
 
-1. Place the Marktplatz (a four-way road junction) at the centre.
+1. Place the Marktburg (a four-sided Burg) at the centre.
 2. Each duchy places its Stammburg with its road pointing at the Markt.
 3. Shuffle each home deck and each Markt pile separately.
-4. **Vorland, drawn at random.** Each duchy fills its four Vorland slots in order: the cell beside the Markt, the cell behind it (facing the gap), then the two cells either side of the first. For each slot, draw from the top of that duchy's deck and place the tile in the rotation that fits:
+4. **Vorland, drawn at random.** Each duchy fills its five Vorland slots in order: the cell beside the Markt, the cell behind it, the middle of the crossbar (facing the gap), then the two ends of the crossbar. For each slot, draw from the top of that duchy's deck and place the tile in the rotation that fits:
    - prefer rotations that close Burg edges against tiles already there (complete Burgs where possible),
    - on the gap-side slot, prefer a road pointing home,
    - if the tile fits nowhere, it goes to a **one-tile reserve slot** and the next tile is drawn; the reserve tile is tried first at the next slot; if the reserve is already full, the tile goes to the bottom of the deck.
    - At the end of setup any reserve tile goes to the bottom of the deck. Nothing scores during setup.
-5. Each duchy now has 18 home tiles left. The game lasts **18 rounds**.
+5. Each duchy now has 17 home tiles left. The game lasts **17 rounds**.
 
 ## A turn
 
@@ -141,11 +145,11 @@ Each duchy has a **home deck of 22 tiles** (same size, different mix) and a **Ma
 
 Majority rules as in Glockenfels: most Wanderers on a feature scores it; ties all score in full.
 
-**Game end:** after 18 rounds, score unfinished features and fields. Highest score wins; ties share the win. Home tiles you never drew score nothing, so a Markt tile always costs you a home tile.
+**Game end:** after 17 rounds, score unfinished features and fields. Highest score wins; ties share the win. Home tiles you never drew score nothing, so a Markt tile always costs you a home tile.
 
 ## Changes from the brainstorm, and why
 
-- **Fixed 18 rounds.** With "play until the decks run out", Markt tiles were extra turns on top of a full home deck, so connecting was simply more tiles. Fixed rounds make a Markt tile a choice instead of a bonus.
+- **Fixed rounds (17, one per home tile left after setup).** With "play until the decks run out", Markt tiles were extra turns on top of a full home deck, so connecting was simply more tiles. Fixed rounds make a Markt tile a choice instead of a bonus.
 - **Your land joins the Markt only after your own gap is closed.** Without this, a rival's Markt tiles could reach your Vorland while you were still building your gap. Your reading ("mutual reach for both players that are connected, so long as the player is connected from their starting tile to the vorland to the markt") is now the rule.
 - **Swaps need your own gap closed**, matching "the reward for connecting to the Markt is the player is allowed to exchange their tiles".
 - **Smaller Markt (3 × 3, not 5 × 5).** With the larger Markt, Wein won 50 to 60% and about 75% of points were home points.

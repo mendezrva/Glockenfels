@@ -19,7 +19,7 @@ const t = (id: string, name: string, edges: TileDef['edges'], center: TileDef['c
 export const K_TILES: Record<string, KTileDef> = Object.fromEntries([
   // Fixed board pieces.
   t('stammburg', 'Stammburg', ['meadow', 'road', 'meadow', 'road'], 'castle'),
-  t('marktplatz', 'Marktplatz', ['road', 'road', 'road', 'road'], 'shrine'),
+  t('marktplatz', 'Marktburg', ['town', 'town', 'town', 'town'], 'maypole', { banner: 1 }),
   // Fields, roads and junctions.
   t('field', 'Open field', ['meadow', 'meadow', 'meadow', 'meadow']),
   t('road', 'Road', ['road', 'meadow', 'road', 'meadow']),
@@ -86,10 +86,10 @@ export const DUCHIES: DuchyDef[] = [
     id: 'wein', name: 'Wein', theme: 'Monks and contemplation', colour: '#d9482b',
     power: 'Besinnung: sees the top two tiles of its home deck and may take either.',
     home: [
-      { tileId: 'stift', count: 1 }, { tileId: 'stift-lane', count: 2 },
+      { tileId: 'stift', count: 1 }, { tileId: 'stift-lane', count: 1 },
       { tileId: 'burg-edge', count: 2 }, { tileId: 'burg-edge-road', count: 2 },
       { tileId: 'burg-corner', count: 2 }, { tileId: 'burg-street', count: 1 }, { tileId: 'burg-square', count: 2 },
-      { tileId: 'road', count: 4 }, { tileId: 'road-bend', count: 4 },
+      { tileId: 'road', count: 4 }, { tileId: 'road-bend', count: 5 },
       { tileId: 'junction', count: 1 }, { tileId: 'field', count: 1 },
     ],
     markt: [
@@ -101,15 +101,15 @@ export const DUCHIES: DuchyDef[] = [
     id: 'forst', name: 'Forst', theme: 'Traveller variety', colour: '#2e9b6b',
     power: 'Waldläufer: may swap twice per turn.',
     home: [
-      { tileId: 'road', count: 3 }, { tileId: 'road-badge', count: 2 },
-      { tileId: 'road-bend', count: 3 }, { tileId: 'road-bend-badge', count: 2 },
+      { tileId: 'road', count: 1 }, { tileId: 'road-badge', count: 4 },
+      { tileId: 'road-bend', count: 2 }, { tileId: 'road-bend-badge', count: 3 },
       { tileId: 'burg-edge-road', count: 2 }, { tileId: 'burg-edge-bend', count: 2 },
       { tileId: 'burg-edge', count: 2 }, { tileId: 'burg-corner', count: 1 },
       { tileId: 'burg-corner-road', count: 1 }, { tileId: 'burg-square', count: 1 },
-      { tileId: 'stift-lane', count: 1 }, { tileId: 'stift', count: 1 }, { tileId: 'field', count: 1 },
+      { tileId: 'stift-lane', count: 1 }, { tileId: 'stift', count: 2 },
     ],
     markt: [
-      { tileId: 'crossroads', count: 2 }, { tileId: 'junction', count: 2 }, { tileId: 'burg-edge-junction', count: 2 },
+      { tileId: 'junction', count: 1 }, { tileId: 'burg-edge-junction', count: 3 }, { tileId: 'burg-corner-road', count: 2 },
     ],
   },
   {

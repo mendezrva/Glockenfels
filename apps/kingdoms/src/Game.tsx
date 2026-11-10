@@ -10,14 +10,15 @@ import { PerformanceMonitor } from '@react-three/drei';
 import { analyze, type GameState } from '@glockenfels/engine';
 import {
   candidates, chooseTurn, current, K_TILES, league, layout, marktAccess, placementsFor, preview, PROFILES,
-  resolve, swapsAllowed, zollFor, zollReceived, type KEvent, type KState, type Source,
+  resolve, swapsAllowed, zollFor, type KEvent, type KState, type Source,
 } from '@glockenfels/kingdoms';
 import { TILE } from '@gf/tiles/buildTile';
 import { PALETTE } from '@gf/tiles/palette';
 import { Clouds, Lights, Mountains } from '@gf/scene/World';
 import { Confetti } from '@gf/scene/Confetti';
 import { BoardTiles, ClaimSpots, FeatureIcon, GhostTile, Popups, SpotMarkers, Wanderers, type PieceItem, type Popup } from '@gf/scene/GameBoard';
-import { boundsOf, CameraRig, declineQuality, defaultQuality, Effects, reducedMotion, type Quality, type View } from '@gf/scene/Stage';
+import { boundsOf, declineQuality, defaultQuality, Effects, reducedMotion, type Quality } from '@gf/scene/Stage';
+import { headingFor, MapCamera, TILT_DEFAULT, TILT_MAX, TILT_MIN, type Recenter } from './MapCamera';
 import { builtTile, featureSpots } from '@gf/game/tiles3d';
 import { TileCard } from '@gf/ui/TileCard';
 import { Toggle } from '@gf/ui/Overlay';
@@ -25,11 +26,9 @@ import { GapPulse, StyleBands, Territory } from './Land';
 import { duchyColor, duchyCss, pieceSlot } from './colors';
 import type { KingdomsController } from './session';
 
-const VIEWS: { id: View; label: string }[] = [
-  { id: 'overhead', label: 'Overhead' },
-  { id: 'isometric', label: 'Isometric' },
-  { id: 'closeup', label: 'Close-up' },
-];
+const TILT_KEY = 'glockenfels.kingdoms.tilt';
+const loadTilt = () => { try { const v = Number(localStorage.getItem(TILT_KEY)); return Number.isFinite(v) && localStorage.getItem(TILT_KEY) !== null ? v : TILT_DEFAULT; } catch { return TILT_DEFAULT; } };
+const saveTilt = (v: number) => { try { localStorage.setItem(TILT_KEY, String(v)); } catch { /* private mode */ } };
 const KIND: Record<string, string> = { town: 'Burg', road: 'Road', monastery: 'Stift', meadow: 'Field' };
 const buzz = (ms = 12) => { try { navigator.vibrate?.(ms); } catch { /* not supported */ } };
 const sameSource = (a: Source | null, b: Source | null) => !!a && !!b && JSON.stringify(a) === JSON.stringify(b);
@@ -60,8 +59,13 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
 
   // ---------- view ----------
   const [quality, setQuality] = useState<Quality>(defaultQuality);
-  const [view, setView] = useState<View>('isometric');
-  const [viewKey, setViewKey] = useState(0);
+  const [tilt, setTiltState] = useState(loadTilt);
+  const setTilt = (v: number) => { setTiltState(v); saveTilt(v); };
+  const [recenter, setRecenter] = useState<Recenter>({ mode: 'board', n: 0 });
+  const go = (mode: Recenter['mode']) => setRecenter({ mode, n: Date.now() });
+  const compass = useRef<HTMLButtonElement>(null);
+  const firstHuman = Math.max(0, seats.findIndex((x) => !x.bot));
+  const startHeading = useMemo(() => (seats.some((x) => !x.bot) ? headingFor(firstHuman) : 0), []); // eslint-disable-line react-hooks/exhaustive-deps
   const [focus, setFocus] = useState<{ x: number; z: number; n: number } | null>(null);
   const [menu, setMenu] = useState(false);
   const [help, setHelp] = useState(false);
@@ -298,74 +302,53 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
   } else if (!isHuman) {
     dock = <div className="dock-row"><p className="hint"><span className="dot" style={{ background: duchyCss(p) }} /> <b>{nameOf(p)}</b>&nbsp;({duchy.name}) is thinking…</p></div>;
   } else {
+    const pileCaption = (src: Source) => src.kind === 'home' ? (src.depth ? '2nd' : 'Home') : src.kind === 'reserve' ? 'Reserve' : s.cfg.duchies[src.duchy].name;
     dock = (
-      <div className="k-dock">
-        <div className="k-row" role="group" aria-label="Pick a pile">
-          <span className="k-label">Take from</span>
-          <div className="hand k-piles">
-            {piles.map((x) => {
-              const on = sameSource(source, x.src);
-              const ok = baseUsable(x.src);
-              return (
-                <div key={JSON.stringify(x.src)} className={`k-pile${on ? ' on' : ''}${ok ? '' : ' off'}`}>
-                  <TileCard def={K_TILES[x.tileId]} rot={on && !swaps.length ? rot : 0} selected={on}
-                    onClick={ok ? () => { buzz(8); if (on && !swaps.length) turnTile(); else { setSource(x.src); setSwaps(canUse(x.src, []) ? [] : (cands.find((c) => sameSource(c.source, x.src) && canUse(c.source, c.swaps))?.swaps ?? [])); } } : undefined}
-                    label={`${x.label}: ${K_TILES[x.tileId].name}${ok ? '' : ' (fits nowhere)'}`} />
-                  <small>{x.label}</small>
-                </div>
-              );
-            })}
-          </div>
+      <div className="k-bar">
+        <div className="k-cards hand" role="group" aria-label="Pick a tile">
+          {piles.map((x) => {
+            const on = sameSource(source, x.src);
+            const ok = baseUsable(x.src);
+            const markt = x.src.kind === 'markt';
+            return (
+              <div key={JSON.stringify(x.src)} className={`k-pile${on ? ' on' : ''}${ok ? '' : ' off'}${markt ? ' markt' : ''}`}>
+                <TileCard def={K_TILES[x.tileId]} rot={on && !swaps.length ? rot : 0} selected={on}
+                  onClick={ok ? () => { buzz(8); if (on && !swaps.length) turnTile(); else { setSource(x.src); setSwaps(canUse(x.src, []) ? [] : (cands.find((c) => sameSource(c.source, x.src) && canUse(c.source, c.swaps))?.swaps ?? [])); } } : undefined}
+                  label={`${x.label}: ${K_TILES[x.tileId].name}${ok ? '' : ' (fits nowhere)'}`} />
+                <small>{markt && <span className="dot" style={{ background: 'var(--gold)' }} />}{pileCaption(x.src)}</small>
+              </div>
+            );
+          })}
+          {(canSwapNow || swaps.length > 0) && <span className="k-sep" aria-hidden="true">⇄</span>}
+          {canSwapNow && s.players.map((_, q) => {
+            if (q === p || !source) return null;
+            const next = [...swaps, q];
+            const c = resolve(s, p, source, next);
+            if (!c) return null;
+            const ok = canUse(source, next);
+            const z = zollFor(s, p, q);
+            return (
+              <div key={q} className={`k-pile${ok ? '' : ' off'}`} style={{ '--pc': duchyCss(q) } as React.CSSProperties}>
+                <TileCard def={K_TILES[c.tileId]} onClick={ok ? () => { buzz(8); setSwaps(next); } : undefined} label={`Swap for ${s.cfg.duchies[q].name}'s ${K_TILES[c.tileId].name}${z ? `, ${z} Zoll` : ''}`} />
+                <small><span className="dot" />{s.cfg.duchies[q].name}{z ? ` −${z}` : ''}</small>
+              </div>
+            );
+          })}
+          {swaps.length > 0 && <button type="button" className="k-undo" aria-label="Undo swap" onClick={() => setSwaps([])}>↶</button>}
         </div>
-        {canSwapNow || swaps.length ? (
-          <div className="k-row" role="group" aria-label="Swap">
-            <span className="k-label">Swap for{swapsAllowed(s, p) > 1 ? ` (${swaps.length}/${swapsAllowed(s, p)})` : ''}</span>
-            <div className="hand k-piles">
-              {s.players.map((_, q) => {
-                if (q === p) return null;
-                const next = [...swaps, q];
-                const c = source && canSwapNow ? resolve(s, p, source, next) : null;
-                if (!c) return null;
-                const ok = canUse(source!, next);
-                const z = zollFor(s, p, q), got = zollReceived(s, p, q);
-                return (
-                  <div key={q} className={`k-pile${ok ? '' : ' off'}`} style={{ '--pc': duchyCss(q) } as React.CSSProperties}>
-                    <TileCard def={K_TILES[c.tileId]} onClick={ok ? () => { buzz(8); setSwaps(next); } : undefined} label={`Swap for ${s.cfg.duchies[q].name}'s ${K_TILES[c.tileId].name}`} />
-                    <small><span className="dot" /> {s.cfg.duchies[q].name}{z ? ` · ${z} Zoll` : got ? ' · free' : ' · free'}</small>
-                  </div>
-                );
-              })}
-              {swaps.length > 0 && <button type="button" onClick={() => setSwaps([])}>↶ Undo swap</button>}
-            </div>
+        {spot && claimOptions.length > 0 && (
+          <div className="claim-opts k-claims" role="group" aria-label="Wanderer">
+            <button type="button" className="claim-opt" aria-pressed={claim === null} onClick={() => setClaim(null)}>None</button>
+            {claimOptions.map((o) => (
+              <button key={o.local} type="button" className="claim-opt" aria-pressed={claim === o.local} onClick={() => { buzz(8); setClaim(o.local); }}>
+                <FeatureIcon kind={o.kind} />{o.label}
+              </button>
+            ))}
           </div>
-        ) : null}
-        <div className="dock-row">
-          <div className="hint-col">
-            <p className="hint title-hint">
-              {def ? def.name : 'No tile'}
-              {cand && cand.style !== p && cand.style >= 0 && <span className="k-tag" style={{ '--pc': duchyCss(cand.style) } as React.CSSProperties}>{s.cfg.duchies[cand.style].name} style</span>}
-              {cand && cand.style < 0 && <span className="k-tag markt">Markt tile</span>}
-            </p>
-            <p className="hint small">
-              {!cand ? 'Pick a pile.' : spot
-                ? claimOptions.length ? (claim === null ? 'Tap a Wanderer spot to claim it, or place without one.' : `Wanderer on the ${claimOptions.find((o) => o.local === claim)?.label}.`) : spotWays > 1 ? 'Tap the tile to turn it.' : 'Fits one way here.'
-                : `Tap one of the ${cells.length} glowing spots.${!s.gapClosed[p] ? ' Close the gap to your Vorland to open the Markt.' : ''}`}
-            </p>
-          </div>
-          {spot && claimOptions.length > 0 && (
-            <div className="claim-opts" role="group" aria-label="Wanderer">
-              <button type="button" className="claim-opt" aria-pressed={claim === null} onClick={() => setClaim(null)}>None</button>
-              {claimOptions.map((o) => (
-                <button key={o.local} type="button" className="claim-opt" aria-pressed={claim === o.local} onClick={() => { buzz(8); setClaim(o.local); }}>
-                  <FeatureIcon kind={o.kind} />{o.label}
-                </button>
-              ))}
-            </div>
-          )}
-          <div className="btns">
-            <button type="button" onClick={turnTile} disabled={!!spot && spotWays < 2} aria-label="Turn tile"><span className="btn-ico">⟳</span> Turn</button>
-            <button type="button" className="primary" disabled={!spot} onClick={confirm}>{spot ? (claim === null ? 'Place tile' : 'Place + Wanderer') : 'Pick a spot'}</button>
-          </div>
+        )}
+        <div className="k-actions">
+          <button type="button" className="k-turn" onClick={turnTile} disabled={!!spot && spotWays < 2} aria-label="Turn tile" title="Turn tile (R)">⟳</button>
+          <button type="button" className="primary" disabled={!spot} onClick={confirm}>{!cand ? 'No tile' : spot ? (claim === null ? 'Place' : 'Place + Wanderer') : 'Tap a spot'}</button>
         </div>
       </div>
     );
@@ -386,7 +369,7 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
         <Suspense fallback={null}>
           <Lights extent={bounds.extent + 4} shadows={quality.shadows} />
           <Mountains />
-          {view !== 'overhead' && <Clouds extent={bounds.extent + 4} />}
+          {tilt >= 15 && <Clouds extent={bounds.extent + 4} />}
           {terrain && <Territory s={s} version={version} player={isHuman ? p : null} />}
           {isHuman && !hidden && <GapPulse s={s} player={p} />}
           <BoardTiles tiles={tiles} bounce={bounce} shadows={quality.shadows} />
@@ -403,7 +386,8 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
           )}
           <Confetti at={party} />
           <Popups items={popups} />
-          <CameraRig view={view} viewKey={viewKey} bounds={bounds} focus={focus} closeTarget={{ x: homeCell[0] * TILE, z: homeCell[1] * TILE }} minDistance={8} keepVisible={curtain === null ? keepVisible : null} />
+          <MapCamera tilt={tilt} recenter={recenter} bounds={bounds} heading={isHuman ? headingFor(p) : startHeading} home={{ x: homeCell[0] * TILE * 0.55, z: homeCell[1] * TILE * 0.55 }}
+            focus={focus} keepVisible={curtain === null ? keepVisible : null} compass={compass} />
           <Effects quality={quality} />
         </Suspense>
       </Canvas>
@@ -432,10 +416,9 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
       {isHuman && !hidden && (
         <div className="k-status" style={{ '--pc': duchyCss(p) } as React.CSSProperties}>
           <b>{nameOf(p)} · {duchy.name}</b>
-          <span className="k-power">{duchy.power}</span>
           <span>{s.gapClosed[p]
-            ? `Markt piles: ${access.map((q) => s.cfg.duchies[q].name).join(', ') || 'none'}${myLeague.length > 1 ? ` · league with ${myLeague.filter((q) => q !== p).map((q) => s.cfg.duchies[q].name).join(', ')}` : ''}`
-            : 'Gap still open: build from your Stammburg to your Vorland (the pulsing cells).'}</span>
+            ? `Markt: ${access.map((q) => s.cfg.duchies[q].name).join(', ') || 'none'}${myLeague.length > 1 ? ' · linked' : ''}`
+            : 'Close your gap (pulsing cells)'}</span>
         </div>
       )}
 
@@ -443,7 +426,10 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
 
       {menu && (
         <div className="panel menu" role="dialog" aria-label="Menu">
-          <div className="seg views">{VIEWS.map((v) => <button key={v.id} type="button" aria-pressed={view === v.id} onClick={() => { setView(v.id); setViewKey((k) => k + 1); }}>{v.label}</button>)}</div>
+          <label className="k-slider" htmlFor="k-tilt-angle">
+            <span>Viewing angle <em>{tilt === 0 ? 'straight down' : `${tilt}° from above`}</em></span>
+            <input id="k-tilt-angle" type="range" min={TILT_MIN} max={TILT_MAX} step={5} value={tilt} onChange={(e) => setTilt(Number(e.target.value))} />
+          </label>
           <Toggle id="k-terrain" label="Show duchy lands" checked={terrain} onChange={setTerrain} />
           <Toggle id="k-shadows" label="Shadows" checked={quality.shadows} onChange={(v) => setQuality({ ...quality, shadows: v })} />
           <Toggle id="k-tilt" label="Tilt-shift blur" checked={quality.tiltShift} onChange={(v) => setQuality({ ...quality, tiltShift: v, auto: false })} />
@@ -456,7 +442,11 @@ export function Game({ game, onQuit }: { game: KingdomsController; onQuit: () =>
       )}
 
       <nav className="dock game-dock" aria-label="Your turn">
-        <div className="seg views quick">{VIEWS.map((v) => <button key={v.id} type="button" aria-pressed={view === v.id} onClick={() => { setView(v.id); setViewKey((k) => k + 1); }}>{v.label}</button>)}</div>
+        <div className="k-nav">
+          <button type="button" onClick={() => go('board')}>Whole board</button>
+          {isHuman && <button type="button" onClick={() => go('home')}>My land</button>}
+          <button type="button" ref={compass} className="k-compass" aria-label="Turn north up" title="North up" onClick={() => go('north')}><span>N</span></button>
+        </div>
         {!hidden && <div className="turn-panel" style={{ '--pc': duchyCss(p) } as React.CSSProperties}>{dock}</div>}
       </nav>
 

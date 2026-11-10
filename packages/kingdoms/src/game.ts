@@ -12,7 +12,7 @@ export const MARKT = -1;
 
 export interface KTile {
   key: string; x: number; z: number; tileId: string; rot: number;
-  /** Duchy whose style the tile carries, or MARKT for Markt tiles and the Marktplatz. */
+  /** Duchy whose style the tile carries, or MARKT for Markt tiles and the Marktburg. */
   style: number;
   /** Player who placed it, -1 for setup. */
   by: number;
@@ -441,7 +441,7 @@ function setupVorland(s: KState, p: number) {
   const deck = s.decks[p];
   let reserve: string | null = null;
   L.vorland.forEach(([x, z], i) => {
-    const homeEdge = i === L.vorland.length - 3 || (L.vorland.length === 3 && i === 0) ? L.gapEdge : null;
+    const homeEdge = i === L.gapSide ? L.gapEdge : null;
     for (let tries = 0; tries < deck.length + 2; tries++) {
       const pool: { id: string; from: 'reserve' | 'deck' }[] = [];
       if (reserve) pool.push({ id: reserve, from: 'reserve' });

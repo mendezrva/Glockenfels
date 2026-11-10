@@ -11,7 +11,7 @@ export interface KConfig {
   rounds: number;
   /** Empty cells between a duchy's Stammburg and its Vorland. */
   gap: number;
-  /** Half-width of the square Markt zone around the Marktplatz (2 means a 5 × 5 Markt). */
+  /** Half-width of the square Markt zone around the Marktburg (2 means a 5 × 5 Markt). */
   marktRadius: number;
   /** Width of the Vorland band outside the Markt, in rings. */
   vorlandDepth: number;
@@ -50,10 +50,10 @@ export interface KOptions extends Partial<Omit<KConfig, 'scoring' | 'powers' | '
 
 export const DEFAULT_CONFIG: KConfig = {
   wanderers: 7,
-  rounds: 18,
+  rounds: 17,
   gap: 2,
   marktRadius: 1,
-  vorlandDepth: 2,
+  vorlandDepth: 3,
   scoring: {
     burgPerTile: 2, burgPerBanner: 2, burgIncompletePerTile: 1, burgIncompletePerBanner: 1,
     roadPerTile: 1, roadPerBadge: 1,

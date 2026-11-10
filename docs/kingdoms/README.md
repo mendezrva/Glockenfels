@@ -24,6 +24,7 @@ npm run build:kingdoms    # static build in apps/kingdoms/dist
 ```
 
 - **Setup screen:** name each duchy's ruler and choose Person or Bot. Bots are the simulator's balanced bot.
-- **Turn dock:** take from a pile (home deck, reserve or a reachable Markt pile), optionally swap for another duchy's top tile (the Zoll is shown), tap a glowing spot, turn the tile, pick a Wanderer spot, then place.
+- **Turn dock:** one compact row. Tap a tile card to take from that pile (home deck, reserve or a reachable Markt pile; the first usable one is picked for you), optionally tap a swap card after the ⇄ (its Zoll is shown), tap a glowing spot, turn the tile with ⟳, pick a Wanderer chip, then Place.
+- **Moving around:** it works like a maps app. One finger drags the board; two fingers pinch to zoom, drag to pan and twist to turn. On a desktop, the left button drags, the right button turns and the wheel zooms. The viewing angle (straight down to 70°) is a slider in the menu, not a gesture. Whole board, My land (turns your home to the bottom) and the N compass (north up) sit above the dock.
 - **On the board:** each tile carries a band in its duchy's colour (its field style; Markt tiles are gold). The ground under empty cells is tinted by duchy, the Markt is gold, and your open gap pulses.
 - **Pass and play:** a hand-off screen appears between people. The game saves itself, and the menu has undo.
